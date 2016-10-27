@@ -28,7 +28,7 @@ class Post(models.Model):
     contentType = models.CharField(max_length=150)
     content = models.TextField()
     author = models.ForeignKey(Author, on_delete=models.CASCADE)
-    catagories = models.TextField(null=True)
+    categories = models.TextField(null=True)
     published = models.DateTimeField(auto_now=True)
     visibility = models.CharField(max_length=100)
 
