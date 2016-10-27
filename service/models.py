@@ -13,6 +13,11 @@ class Author(models.Model):
     url = models.CharField(max_length=500)
     github = models.CharField(max_length=500)
     userID = models.OneToOneField(User, on_delete=models.SET_NULL, null=True, blank=True)
+    email = models.EmailField(max_length=254, default="")
+    firstName = models.CharField(max_length=30, default="")
+    lastName = models.CharField(max_length=30, default="")
+    bio = models.TextField(default="")
+
 
 class Post(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
