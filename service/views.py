@@ -55,9 +55,21 @@ def posts_handler_specific(request, uuid):
 		return JsonResponse(serialized_post, safe=False)
 	elif (request.method == 'DELETE'):
 		#validation to see if they can actually delete the object, i.e it's their post
+
+		user = check_authenticate(request)
+		if(user == None):
+			return HttpResponse(status=403)
+
+		author = Author.objects.get(userID=user.id)
+
 		post = Post.objects.get(pk=uuid)
-		post.delete()
-		return HttpResponse(status=200)
+
+		if(post.author == author):
+			post.delete()
+			return HttpResponse(status=200)
+		else:
+			return HttpResponse(status=403)
+
 
 def author_handler(request):
 	if (request.method == 'POST'):
