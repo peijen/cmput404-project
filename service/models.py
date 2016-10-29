@@ -25,6 +25,8 @@ class Author(models.Model):
     firstName = models.CharField(max_length=30, default="")
     lastName = models.CharField(max_length=30, default="")
     bio = models.TextField(default="")
+    def __str__(self):
+        return self.displayName
 
 
 class Post(models.Model):
