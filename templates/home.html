@@ -8,6 +8,25 @@
 <div class="jumbotron">
   <h1>Hello</h1>
   <p>You are on your Dashboard</p>
+  <p>Post:</p>
+  <div>
+  <!--TODO need to where figure out where to send this -->
+  <form action="", method="POST" id="makepost">
+  <div> Title: <input type ="text" name="title"></div><br>
+   <div> Description: <input type="text" name="descrip"></div><br>
+   <div> Content: <textarea rows="4" cols="50" name="content" form="makepost"></textarea></div><br>
+    <div>Categories:<input type ="text" name="categories"></div><br>
+   <div> Visibility:
+   <select>
+           <option value="ME">Me Only</option>
+           <option value="FRIENDS">Your friends on all server </option>
+           <option value="FRIENDS_OF_FRIENDS">Friends of friends </option>
+           <option value="HOST_FRIENDS">Server Only </option>
+           <option value="ALL">All</option>
+   </select>
+   </div>
+   <input type="submit" value="Post">
+   </div>
 </div>
 </div>
 </div>
