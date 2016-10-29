@@ -5,6 +5,14 @@ from django.db import models
 import uuid
 from django.contrib.auth.models import User
 
+VISIBILITY_CHOICES = (
+    ('0', 'ME'),
+    ('1', 'OTHER_AUTHOR'),
+    ('2', 'FRIENDS'),
+    ('3', 'FRIENDS_OF_FRIENDS'),
+    ('4', 'HOST_FRIENDS'),
+    ('5', 'ALL')
+)
 
 class Author(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -17,6 +25,8 @@ class Author(models.Model):
     firstName = models.CharField(max_length=30, default="")
     lastName = models.CharField(max_length=30, default="")
     bio = models.TextField(default="")
+    def __str__(self):
+        return self.displayName
 
 
 class Post(models.Model):
@@ -30,7 +40,7 @@ class Post(models.Model):
     author = models.ForeignKey(Author, on_delete=models.CASCADE)
     categories = models.TextField(null=True)
     published = models.DateTimeField(auto_now=True)
-    visibility = models.CharField(max_length=100)
+    visibility = models.CharField(max_length=1, choices=VISIBILITY_CHOICES, default='0')
 
 class Comment(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
