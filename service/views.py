@@ -22,8 +22,22 @@ def posts_handler_generic(request):
 		serialized_posts = serializers.serialize('json', posts)
 		return JsonResponse(serialized_posts, safe=False)
 
-def posts_handler_specific(request):
-	return HttpResponse("")
+def posts_handler_specific(request, id):
+	if (request.method == 'POST'):
+		return HttpResponse(status=405)
+	elif (request.method == 'PUT' or request.method == 'PATCH'):
+		return
+		#update an entry
+	elif (request.method == 'GET'):
+		#validation to see if they can actually access this post based on its permissions
+		post = Post.objects.get(pk=id)
+		serialized_post = serializers.serialize('json', [post])
+		return JsonResponse(serialized_post, safe=False)
+	elif (request.method == 'DELETE'):
+		#validation to see if they can actually delete the object, i.e it's their post
+		post = Post.objects.get(pk=id)
+		post.delete()
+		return HttpResponse(status=200)
 
 def author_handler(request):
 	if (request.method == 'POST'):

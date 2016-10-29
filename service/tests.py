@@ -27,3 +27,20 @@ class TestPosts(TestCase):
         response = c.get('/service/posts/')
         list_data = json.loads(response.content.decode('string-escape').strip('"'))
         self.assertEqual(len(list_data), 3)
+
+    def test_can_delete_posts_with_http(self):
+        post = Post.objects.create(title="Test123", author_id=author.id)
+        response = c.delete('/service/posts/' + str(post.id) +'/')
+        self.assertEqual(response.status_code, 200)
+        try:
+            test = Post.objects.get(pk=post.id)
+            self.fail("Should have errored.")
+        except:
+            pass
+
+    def test_can_retrieve_specific_post_with_http(self):
+        post = Post.objects.create(title="Test123", author_id=author.id)
+        response = c.get('/service/posts/' + str(post.id) + '/')
+        self.assertEqual(response.status_code, 200)
+        server_post = json.loads(response.content.decode('string-escape').strip('"'))
+        self.assertEqual(server_post[0]['pk'], post.id)
