@@ -7,7 +7,7 @@ from .authenticate import check_authenticate
 
 # Create your views here.
 def index(request):
-
+    
     #Testing authentication check via HTTP Basic Auth
     authenticated = check_authenticate(request)
 

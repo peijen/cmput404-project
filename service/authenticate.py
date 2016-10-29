@@ -9,6 +9,8 @@ def check_authenticate(request):
 	# authentication failed (either no header or wrong login), or it returns
 	# the user the authentication succeeded on.
 
+	if request.user.is_authenticated():
+		return request.user
 
 	header = request.META.get('HTTP_AUTHORIZATION')
 	
