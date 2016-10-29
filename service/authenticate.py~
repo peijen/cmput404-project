@@ -8,19 +8,18 @@ def check_authenticate(view):
 	# authentication failed (either no header or wrong login), or it returns
 	# the user the authentication succeeded on.
 
-	key = "Authorization"
-	if key not in view.META:
-		return None
-
 	# Get the HTTP Authorization header
 	authenticate_header = view.META['Authorization']
-	
+
+	# Check to see if this header exists, otherwise return None
+    if not authenticate_header:
+        return None
+
 	# Split this header into two. First word should be basic because we only
 	# support basic auth.
 
 	parsed = authenticate_header.split(" ")
-	if(parsed[0] != "Basic"):
-		return None
+	if(parsed[0] != "Basic") return None
 
 	# Get the argument after the space. Should be login info encoded into
 	# base 64. If this fails header is invalid, return None.
