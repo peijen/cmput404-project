@@ -1,24 +1,26 @@
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.contrib.auth.models import User
+from django.contrib.auth import authenticate
 
-def check_authenticate(view):
+def check_authenticate(request):
 
 	# Attempts to authenticate via HTTP Basic Auth. Returns None if the
 	# authentication failed (either no header or wrong login), or it returns
 	# the user the authentication succeeded on.
 
-	key = "Authorization"
-	if key not in view.META:
-		return None
 
-	# Get the HTTP Authorization header
-	authenticate_header = view.META['Authorization']
+	header = request.META.get('HTTP_AUTHORIZATION')
+	
+	
+	if header == None:
+		return None
+	
 	
 	# Split this header into two. First word should be basic because we only
 	# support basic auth.
 
-	parsed = authenticate_header.split(" ")
+	parsed = header.split(" ")
 	if(parsed[0] != "Basic"):
 		return None
 
@@ -36,14 +38,18 @@ def check_authenticate(view):
 
 	logindata = logindata.split(":", 1)
 
+
 	# Authenticate with Django. Returns the user if correct, otherwise
 	# returns None.
 	try:
 		user = authenticate(username=logindata[0], password=logindata[1])
 	except:
 		return None
-
-	return user
+	
+	if(user == None):
+		return None
+	else:
+		return user
 
 
 

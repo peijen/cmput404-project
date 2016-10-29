@@ -11,10 +11,12 @@ def index(request):
     #Testing authentication check via HTTP Basic Auth
     authenticated = check_authenticate(request)
 
-    if(authenticated == None):
-        return HttpResponse("Not authenticated")
-    else:
-        return HttpResponse("Authenticated as user" + authenticated.username)
+    return HttpResponse(authenticated)
+
+    #if(authenticated == None):
+    #    return HttpResponse("Not authenticated")
+    #else:
+    #    return HttpResponse("Authenticated as user" + authenticated.username)
 
 def posts_handler_generic(request):
 	if (request.method == 'POST'):
