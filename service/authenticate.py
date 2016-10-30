@@ -48,10 +48,7 @@ def check_authenticate(request):
 	except:
 		return None
 	
-	if(user == None):
-		return None
-	else:
-		return user
+	return user
 
 
 
