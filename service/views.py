@@ -41,6 +41,7 @@ def posts_handler_generic(request):
 
 	if (request.method == 'POST'):
 		#TODO: ADD validation
+		print request.body
 		post = json.loads(request.body.strip("'<>() ").replace('\'', '\"'))
 		new_post = create_post(post)
 		data = model_to_dict(new_post)

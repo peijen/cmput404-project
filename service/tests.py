@@ -19,7 +19,7 @@ class TestPosts(TestCase):
     def test_can_create_post_with_http(self):
         data = {
             "title": "test",
-            "author_id": author.id,
+            "author_id": str(author.id),
             "source":"test",
             "origin":"test",
             "description":"test",

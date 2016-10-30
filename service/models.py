@@ -5,6 +5,17 @@ from django.db import models
 import uuid
 from django.contrib.auth.models import User
 
+'''
+Dealing with no UUID serialization support in json
+'''
+from json import JSONEncoder
+from uuid import UUID
+JSONEncoder_olddefault = JSONEncoder.default
+def JSONEncoder_newdefault(self, o):
+    if isinstance(o, UUID): return str(o)
+    return JSONEncoder_olddefault(self, o)
+JSONEncoder.default = JSONEncoder_newdefault
+
 VISIBILITY_CHOICES = (
     ('0', 'ME'),
     ('1', 'OTHER_AUTHOR'),
