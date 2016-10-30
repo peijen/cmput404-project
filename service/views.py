@@ -5,6 +5,7 @@ from django.forms.models import model_to_dict
 from django.core import serializers
 from .authenticate import check_authenticate
 import datetime
+import json
 
 # Create your views here.
 def index(request):
@@ -17,23 +18,34 @@ def index(request):
     else:
         return HttpResponse("Authenticated as user" + authenticated.username)
 
+def create_post(post):
+	new_post = Post.objects.create(title=post['title'],
+		source=post['source'],
+		origin=post['origin'],
+		author_id=post['author_id'],
+		description=post['description'],
+		contentType=post['contentType'],
+		content=post['content'],
+		categories=post['categories'],
+		published=datetime.datetime.now(),
+		visibility=post['visibility'])
+	return new_post
+
+def create_json_response_with_location(data, id, path):
+	json_response = JsonResponse(data)
+	json_response['Location'] = path + str(id)
+	json_response.status_code = 201
+	return json_response
+
 def posts_handler_generic(request):
 
 	if (request.method == 'POST'):
 		#TODO: ADD validation
-		post = request.POST
-		new_post = Post.objects.create(title=post['title'],
-			source=post['source'],
-			origin=post['origin'],
-			author_id=post['author_id'],
-			description=post['description'],
-			contentType=post['contentType'],
-			content=post['content'],
-			categories=post['categories'],
-			published=datetime.datetime.now(),
-			visibility=post['visibility'])
-		response = model_to_dict(new_post)
-		return JsonResponse(response)
+		print request.body
+		post = json.loads(request.body.strip("'<>() ").replace('\'', '\"'))
+		new_post = create_post(post)
+		data = model_to_dict(new_post)
+		return create_json_response_with_location(data, new_post.id, request.path)
 
 	elif (request.method == 'GET'):
 		#TODO: this should return all the posts that a user can see, i.e their stream, not all posts in db
@@ -41,16 +53,29 @@ def posts_handler_generic(request):
 		serialized_posts = serializers.serialize('json', posts)
 		return JsonResponse(serialized_posts, safe=False)
 
-def posts_handler_specific(request, uuid):
+	elif (request.method == 'PUT'):
+		#TODO: VALIDATION... again
+		body = json.loads(request.body.strip("'<>() ").replace('\'', '\"'))
+		new_post = create_post(body)
+		data = model_to_dict(new_post)
+		return create_json_response_with_location(data, new_post.id, request.path)
+
+def posts_handler_specific(request, id):
 
 	if (request.method == 'POST'):
 		return HttpResponse(status=405)
 	elif (request.method == 'PUT' or request.method == 'PATCH'):
-		return
-		#update an entry
+		body = json.loads(request.body.strip("'<>() ").replace('\'', '\"'))
+		post = Post.objects.get(pk=id)
+		for k,v in body.iteritems():
+			post[k] = v
+		post.save()
+		return HttpResponse(status=200)
+
+
 	elif (request.method == 'GET'):
 		#validation to see if they can actually access this post based on its permissions
-		post = Post.objects.get(pk=uuid)
+		post = Post.objects.get(pk=id)
 		serialized_post = serializers.serialize('json', [post])
 		return JsonResponse(serialized_post, safe=False)
 	elif (request.method == 'DELETE'):
@@ -69,7 +94,6 @@ def posts_handler_specific(request, uuid):
 			return HttpResponse(status=200)
 		else:
 			return HttpResponse(status=403)
-
 
 def author_handler(request):
 	if (request.method == 'POST'):
