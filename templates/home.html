@@ -2,6 +2,8 @@
 {% extends 'base.html' %}
 
 {% block content %}
+
+<h1>{Author.id}</h1>
 <div class="container">
 <div class="row">
 
@@ -9,12 +11,16 @@
   <h1>Hello</h1>
   <p>You are on your Dashboard</p>
   <p>Post:</p>
+{% if error_message %}
+   <p><strong>{{error_message}}</strong></p>
+{% endif %}
   <div>
   <!--TODO need to where figure out where to send this -->
-  <form action="", method="POST" id="makepost">
+  <form action="{% url 'service:post_handler_specific' Author.id %}", method="POST" id="makepost">
+  {% csrf_token %}
   <div> Title: <input type ="text" name="title"></div><br>
    <div> Description: <input type="text" name="descrip"></div><br>
-   <div> Content: <textarea rows="4" cols="50" name="content" form="makepost"></textarea></div><br>
+   <div> Content: <textarea rows="4" cols="50" name="coyountent" form="makepost"></textarea></div><br>
     <div>Categories:<input type ="text" name="categories"></div><br>
    <div> Visibility:
    <select>
