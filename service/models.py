@@ -15,6 +15,7 @@ VISIBILITY_CHOICES = (
 )
 
 class Author(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
     host = models.CharField(max_length=500)
     displayName = models.CharField(max_length=50)
     url = models.CharField(max_length=500)
@@ -30,6 +31,7 @@ class Author(models.Model):
 
 
 class Post(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
     title = models.CharField(max_length=150)
     source = models.CharField(max_length=150)
     origin = models.CharField(max_length=150)
@@ -50,6 +52,7 @@ class Post(models.Model):
         return setattr(self, key, data)
 
 class Comment(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
     author = models.ForeignKey(Author, on_delete=models.CASCADE)
     comment = models.TextField()
