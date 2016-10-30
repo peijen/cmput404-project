@@ -17,7 +17,16 @@ class TestPosts(TestCase):
         self.assertEqual(test_post.author_id, author.id)
 
     def test_can_create_post_with_http(self):
-        response = c.post('/service/posts/', {'title': 'test', 'author_id': author.id})
+        response = c.post('/service/posts/',
+            {'title': 'test',
+            'author_id': author.id,
+            'source':'test',
+            'origin':'test',
+            'description':'test',
+            'contentType':'test',
+            'content':'test content',
+            'categories':'test categories',
+            'visibility': '0'})
         self.assertEqual(response.status_code, 200)
 
     def test_can_retrieve_posts_with_http(self):
@@ -43,4 +52,4 @@ class TestPosts(TestCase):
         response = c.get('/service/posts/' + str(post.id) + '/')
         self.assertEqual(response.status_code, 200)
         server_post = json.loads(response.content.decode('string-escape').strip('"'))
-        self.assertEqual(server_post[0]['pk'], post.id)
+        self.assertEqual(str(server_post[0]['pk']), str(post.id))
