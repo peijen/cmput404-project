@@ -3,10 +3,18 @@ from django.http import HttpResponse, JsonResponse
 from .models import Author, Comment, Post
 from django.forms.models import model_to_dict
 from django.core import serializers
+from .authenticate import check_authenticate
 
 # Create your views here.
 def index(request):
-	return HttpResponse("At the service index")
+    
+    #Testing authentication check via HTTP Basic Auth
+    authenticated = check_authenticate(request)
+
+    if(authenticated == None):
+        return HttpResponse("Not authenticated")
+    else:
+        return HttpResponse("Authenticated as user" + authenticated.username)
 
 def posts_handler_generic(request):
 	if (request.method == 'POST'):

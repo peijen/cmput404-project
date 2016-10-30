@@ -15,6 +15,7 @@ VISIBILITY_CHOICES = (
 )
 
 class Author(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     host = models.CharField(max_length=500)
     displayName = models.CharField(max_length=50)
     url = models.CharField(max_length=500)
@@ -24,9 +25,12 @@ class Author(models.Model):
     firstName = models.CharField(max_length=30, default="")
     lastName = models.CharField(max_length=30, default="")
     bio = models.TextField(default="")
+    def __str__(self):
+        return self.displayName
 
 
 class Post(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     title = models.CharField(max_length=150)
     source = models.CharField(max_length=150)
     origin = models.CharField(max_length=150)
@@ -37,10 +41,16 @@ class Post(models.Model):
     categories = models.TextField(null=True)
     published = models.DateTimeField(auto_now=True)
     visibility = models.CharField(max_length=1, choices=VISIBILITY_CHOICES, default='0')
+    def __str__(self):
+        return self.title
+        
 
 class Comment(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
     author = models.ForeignKey(Author, on_delete=models.CASCADE)
     comment = models.TextField()
     contentType = models.CharField(max_length=150)
     published = models.DateTimeField(auto_now=True)
+    def __str__(self):
+        return self.comment
