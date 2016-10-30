@@ -4,10 +4,11 @@ from .models import Author, Comment, Post
 from django.forms.models import model_to_dict
 from django.core import serializers
 from .authenticate import check_authenticate
+import datetime
 
 # Create your views here.
 def index(request):
-    
+
     #Testing authentication check via HTTP Basic Auth
     authenticated = check_authenticate(request)
 
@@ -17,10 +18,20 @@ def index(request):
         return HttpResponse("Authenticated as user" + authenticated.username)
 
 def posts_handler_generic(request):
+
 	if (request.method == 'POST'):
 		#TODO: ADD validation
 		post = request.POST
-		new_post = Post.objects.create(title=post['title'], author_id=post['author_id'])
+		new_post = Post.objects.create(title=post['title'],
+			source=post['source'],
+			origin=post['origin'],
+			author_id=post['author_id'],
+			description=post['description'],
+			contentType=post['contentType'],
+			content=post['content'],
+			categories=post['categories'],
+			published=datetime.datetime.now(),
+			visibility=post['visibility'])
 		response = model_to_dict(new_post)
 		return JsonResponse(response)
 
@@ -30,7 +41,8 @@ def posts_handler_generic(request):
 		serialized_posts = serializers.serialize('json', posts)
 		return JsonResponse(serialized_posts, safe=False)
 
-def posts_handler_specific(request, id):
+def posts_handler_specific(request, uuid):
+
 	if (request.method == 'POST'):
 		return HttpResponse(status=405)
 	elif (request.method == 'PUT' or request.method == 'PATCH'):
@@ -38,12 +50,12 @@ def posts_handler_specific(request, id):
 		#update an entry
 	elif (request.method == 'GET'):
 		#validation to see if they can actually access this post based on its permissions
-		post = Post.objects.get(pk=id)
+		post = Post.objects.get(pk=uuid)
 		serialized_post = serializers.serialize('json', [post])
 		return JsonResponse(serialized_post, safe=False)
 	elif (request.method == 'DELETE'):
 		#validation to see if they can actually delete the object, i.e it's their post
-		post = Post.objects.get(pk=id)
+		post = Post.objects.get(pk=uuid)
 		post.delete()
 		return HttpResponse(status=200)
 
