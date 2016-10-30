@@ -7,6 +7,8 @@ from django.contrib.auth.models import User
 
 '''
 Dealing with no UUID serialization support in json
+
+https://arthurpemberton.com/2015/04/fixing-uuid-is-not-json-serializable
 '''
 from json import JSONEncoder
 from uuid import UUID
