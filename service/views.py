@@ -126,8 +126,8 @@ def friendrequest_handler(request):
     # return users list of pending requests
     elif (request.method == 'GET'):
         author = Author.objects.get(user_id=request.user.id)
-        friend_requests = FriendRequest.objects.filter(
-            Q(requester_id=author.id) | Q(requestee_id=author.id))
+        friend_requests = FriendRequest.objects.filter((
+            Q(requester_id=author.id) | Q(requestee_id=author.id)) & Q(accepted__isnull=True))
         serialized = serializers.serialize('json', friend_requests)
         return JsonResponse(serialized, safe=False)
 
