@@ -12,4 +12,5 @@ urlpatterns = [
     url(r'^posts/(?P<id>[^/]+)/?$', views.posts_handler_specific,name='post_handler_specific'),
     url(r'^author/?$', views.author_handler),
     url(r'^friends/?$', views.friend_handler),
+    url(r'^friendrequest/?$', views.friendrequest_handler),
 ]
