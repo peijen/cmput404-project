@@ -1,10 +1,10 @@
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
-from .models import Author, Comment, Post
+from .models import Author, Comment, Post, FriendRequest
+from django.db.models import Q
 from django.forms.models import model_to_dict
 from django.core import serializers
 from .authenticate import check_authenticate
-import datetime
 import json
 
 # Create your views here.
@@ -12,11 +12,10 @@ def index(request):
 
     #Testing authentication check via HTTP Basic Auth
     authenticated = check_authenticate(request)
-
     if(authenticated == None):
         return HttpResponse("Not authenticated")
     else:
-        return HttpResponse("Authenticated as user" + authenticated.username)
+		return HttpResponse("Authenticated as user" + authenticated.username)
 
 def create_post(post):
 	new_post = Post.objects.create(title=post['title'],
@@ -27,7 +26,6 @@ def create_post(post):
 		contentType=post['contentType'],
 		content=post['content'],
 		categories=post['categories'],
-		published=datetime.datetime.now(),
 		visibility=post['visibility'])
 	return new_post
 
@@ -41,7 +39,6 @@ def posts_handler_generic(request):
 
 	if (request.method == 'POST'):
 		#TODO: ADD validation
-		print request.body
 		post = json.loads(request.body.strip("'<>() ").replace('\'', '\"'))
 		new_post = create_post(post)
 		data = model_to_dict(new_post)
@@ -64,6 +61,7 @@ def posts_handler_specific(request, id):
 
 	if (request.method == 'POST'):
 		return HttpResponse(status=405)
+
 	elif (request.method == 'PUT' or request.method == 'PATCH'):
 		body = json.loads(request.body.strip("'<>() ").replace('\'', '\"'))
 		post = Post.objects.get(pk=id)
@@ -72,12 +70,12 @@ def posts_handler_specific(request, id):
 		post.save()
 		return HttpResponse(status=200)
 
-
 	elif (request.method == 'GET'):
 		#validation to see if they can actually access this post based on its permissions
 		post = Post.objects.get(pk=id)
 		serialized_post = serializers.serialize('json', [post])
 		return JsonResponse(serialized_post, safe=False)
+
 	elif (request.method == 'DELETE'):
 		#validation to see if they can actually delete the object, i.e it's their post
 
@@ -85,11 +83,11 @@ def posts_handler_specific(request, id):
 		if(user == None):
 			return HttpResponse(status=403)
 
-		author = Author.objects.get(userID=user.id)
+		author = Author.objects.get(user_id=user.id)
 
-		post = Post.objects.get(pk=uuid)
+		post = Post.objects.get(pk=id)
 
-		if(post.author == author):
+		if(post.author_id == author.id):
 			post.delete()
 			return HttpResponse(status=200)
 		else:
@@ -102,3 +100,22 @@ def author_handler(request):
 
 def friend_handler(request):
 	return HttpResponse("My united states of")
+
+def friendrequest_handler(request):
+	if (request.method == 'POST'):
+		body = json.loads(request.body.strip("'<>() ").replace('\'', '\"'))
+		author = Author.objects.get(user_id=request.user.id)
+		#TODO: validation, are they already friends?
+		fr = FriendRequest.objects.create(requester_id=author.id, requestee_id=body['author_id'])
+		data = model_to_dict(fr)
+		return create_json_response_with_location(data, fr.id, request.path)
+
+	# return users list of pending requests
+	elif (request.method == 'GET'):
+		author = Author.objects.get(user_id=request.user.id)
+		friend_requests = FriendRequest.objects.filter(Q(requester_id=author.id) | Q(requestee_id=author.id))
+		serialized = serializers.serialize('json', friend_requests)
+		return JsonResponse(serialized, safe=False)
+
+	else:
+		return HttpResponse(status=405)

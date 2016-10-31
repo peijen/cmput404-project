@@ -59,8 +59,6 @@ LOGIN_REDIRECT_URL = '/'
 
 ROOT_URLCONF = 'cmput404.urls'
 
-
-
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
