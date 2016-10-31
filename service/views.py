@@ -9,7 +9,6 @@ import json
 
 # Create your views here.
 
-
 def index(request):
 
     # Testing authentication check via HTTP Basic Auth
@@ -31,7 +30,6 @@ def create_post(post):
                                    categories=post['categories'],
                                    visibility=post['visibility'])
     return new_post
-
 
 def create_json_response_with_location(data, id, path):
     json_response = JsonResponse(data)
