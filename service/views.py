@@ -8,114 +8,128 @@ from .authenticate import check_authenticate
 import json
 
 # Create your views here.
+
+
 def index(request):
 
-    #Testing authentication check via HTTP Basic Auth
+    # Testing authentication check via HTTP Basic Auth
     authenticated = check_authenticate(request)
     if(authenticated == None):
         return HttpResponse("Not authenticated")
     else:
-		return HttpResponse("Authenticated as user" + authenticated.username)
+        return HttpResponse("Authenticated as user" + authenticated.username)
+
 
 def create_post(post):
-	new_post = Post.objects.create(title=post['title'],
-		source=post['source'],
-		origin=post['origin'],
-		author_id=post['author_id'],
-		description=post['description'],
-		contentType=post['contentType'],
-		content=post['content'],
-		categories=post['categories'],
-		visibility=post['visibility'])
-	return new_post
+    new_post = Post.objects.create(title=post['title'],
+                                   source=post['source'],
+                                   origin=post['origin'],
+                                   author_id=post['author_id'],
+                                   description=post['description'],
+                                   contentType=post['contentType'],
+                                   content=post['content'],
+                                   categories=post['categories'],
+                                   visibility=post['visibility'])
+    return new_post
+
 
 def create_json_response_with_location(data, id, path):
-	json_response = JsonResponse(data)
-	json_response['Location'] = path + str(id)
-	json_response.status_code = 201
-	return json_response
+    json_response = JsonResponse(data)
+    json_response['Location'] = path + str(id)
+    json_response.status_code = 201
+    return json_response
+
 
 def posts_handler_generic(request):
 
-	if (request.method == 'POST'):
-		#TODO: ADD validation
-		post = json.loads(request.body.strip("'<>() ").replace('\'', '\"'))
-		new_post = create_post(post)
-		data = model_to_dict(new_post)
-		return create_json_response_with_location(data, new_post.id, request.path)
+    if (request.method == 'POST'):
+        # TODO: ADD validation
+        post = json.loads(request.body.strip("'<>() ").replace('\'', '\"'))
+        new_post = create_post(post)
+        data = model_to_dict(new_post)
+        return create_json_response_with_location(data, new_post.id, request.path)
 
-	elif (request.method == 'GET'):
-		#TODO: this should return all the posts that a user can see, i.e their stream, not all posts in db
-		posts = Post.objects.all()
-		serialized_posts = serializers.serialize('json', posts)
-		return JsonResponse(serialized_posts, safe=False)
+    elif (request.method == 'GET'):
+        # TODO: this should return all the posts that a user can see, i.e their
+        # stream, not all posts in db
+        posts = Post.objects.all()
+        serialized_posts = serializers.serialize('json', posts)
+        return JsonResponse(serialized_posts, safe=False)
 
-	elif (request.method == 'PUT'):
-		#TODO: VALIDATION... again
-		body = json.loads(request.body.strip("'<>() ").replace('\'', '\"'))
-		new_post = create_post(body)
-		data = model_to_dict(new_post)
-		return create_json_response_with_location(data, new_post.id, request.path)
+    elif (request.method == 'PUT'):
+        # TODO: VALIDATION... again
+        body = json.loads(request.body.strip("'<>() ").replace('\'', '\"'))
+        new_post = create_post(body)
+        data = model_to_dict(new_post)
+        return create_json_response_with_location(data, new_post.id, request.path)
+
 
 def posts_handler_specific(request, id):
 
-	if (request.method == 'POST'):
-		return HttpResponse(status=405)
+    if (request.method == 'POST'):
+        return HttpResponse(status=405)
 
-	elif (request.method == 'PUT' or request.method == 'PATCH'):
-		body = json.loads(request.body.strip("'<>() ").replace('\'', '\"'))
-		post = Post.objects.get(pk=id)
-		for k,v in body.iteritems():
-			post[k] = v
-		post.save()
-		return HttpResponse(status=200)
+    elif (request.method == 'PUT' or request.method == 'PATCH'):
+        body = json.loads(request.body.strip("'<>() ").replace('\'', '\"'))
+        post = Post.objects.get(pk=id)
+        for k, v in body.iteritems():
+            post[k] = v
+        post.save()
+        return HttpResponse(status=200)
 
-	elif (request.method == 'GET'):
-		#validation to see if they can actually access this post based on its permissions
-		post = Post.objects.get(pk=id)
-		serialized_post = serializers.serialize('json', [post])
-		return JsonResponse(serialized_post, safe=False)
+    elif (request.method == 'GET'):
+        # validation to see if they can actually access this post based on its
+        # permissions
+        post = Post.objects.get(pk=id)
+        serialized_post = serializers.serialize('json', [post])
+        return JsonResponse(serialized_post, safe=False)
 
-	elif (request.method == 'DELETE'):
-		#validation to see if they can actually delete the object, i.e it's their post
+    elif (request.method == 'DELETE'):
+        # validation to see if they can actually delete the object, i.e it's
+        # their post
 
-		user = check_authenticate(request)
-		if(user == None):
-			return HttpResponse(status=403)
+        user = check_authenticate(request)
+        if(user == None):
+            return HttpResponse(status=403)
 
-		author = Author.objects.get(user_id=user.id)
+        author = Author.objects.get(user_id=user.id)
 
-		post = Post.objects.get(pk=id)
+        post = Post.objects.get(pk=id)
 
-		if(post.author_id == author.id):
-			post.delete()
-			return HttpResponse(status=200)
-		else:
-			return HttpResponse(status=403)
+        if(post.author_id == author.id):
+            post.delete()
+            return HttpResponse(status=200)
+        else:
+            return HttpResponse(status=403)
+
 
 def author_handler(request):
-	if (request.method == 'POST'):
-		return
-	return HttpResponse("")
+    if (request.method == 'POST'):
+        return
+    return HttpResponse("")
+
 
 def friend_handler(request):
-	return HttpResponse("My united states of")
+    return HttpResponse("My united states of")
+
 
 def friendrequest_handler(request):
-	if (request.method == 'POST'):
-		body = json.loads(request.body.strip("'<>() ").replace('\'', '\"'))
-		author = Author.objects.get(user_id=request.user.id)
-		#TODO: validation, are they already friends?
-		fr = FriendRequest.objects.create(requester_id=author.id, requestee_id=body['author_id'])
-		data = model_to_dict(fr)
-		return create_json_response_with_location(data, fr.id, request.path)
+    if (request.method == 'POST'):
+        body = json.loads(request.body.strip("'<>() ").replace('\'', '\"'))
+        author = Author.objects.get(user_id=request.user.id)
+        # TODO: validation, are they already friends?
+        fr = FriendRequest.objects.create(
+            requester_id=author.id, requestee_id=body['author_id'])
+        data = model_to_dict(fr)
+        return create_json_response_with_location(data, fr.id, request.path)
 
-	# return users list of pending requests
-	elif (request.method == 'GET'):
-		author = Author.objects.get(user_id=request.user.id)
-		friend_requests = FriendRequest.objects.filter(Q(requester_id=author.id) | Q(requestee_id=author.id))
-		serialized = serializers.serialize('json', friend_requests)
-		return JsonResponse(serialized, safe=False)
+    # return users list of pending requests
+    elif (request.method == 'GET'):
+        author = Author.objects.get(user_id=request.user.id)
+        friend_requests = FriendRequest.objects.filter(
+            Q(requester_id=author.id) | Q(requestee_id=author.id))
+        serialized = serializers.serialize('json', friend_requests)
+        return JsonResponse(serialized, safe=False)
 
-	else:
-		return HttpResponse(status=405)
+    else:
+        return HttpResponse(status=405)
