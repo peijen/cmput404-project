@@ -38,7 +38,7 @@ class Author(models.Model):
     firstName = models.CharField(max_length=30, default="")
     lastName = models.CharField(max_length=30, default="")
     bio = models.TextField(default="")
-    friends = models.ForeignKey("self", null=True)
+    friends = models.ForeignKey("self", null=True, blank=True)
     def __str__(self):
         return self.displayName
 
