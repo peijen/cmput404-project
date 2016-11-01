@@ -2,7 +2,7 @@
 {% extends 'base.html' %}
 
 {% block content %}
-
+ <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
 <h1>{Author.id}</h1>
 <div class="container">
 <div class="row">
@@ -16,14 +16,14 @@
 {% endif %}
   <div>
   <!--TODO need to where figure out where to send this -->
-  <form action="{% url 'service:post_handler_specific' Author.id %}", method="POST" id="makepost">
+  <form action="{% url 'service:post_handler_generic'%}", method="POST" id="makepost">
   {% csrf_token %}
-  <div> Title: <input type ="text" name="title"></div><br>
-   <div> Description: <input type="text" name="descrip"></div><br>
-   <div> Content: <textarea rows="4" cols="50" name="coyountent" form="makepost"></textarea></div><br>
-    <div>Categories:<input type ="text" name="categories"></div><br>
+  <div> Title: <input type ="text" id ="title" name="title"></div><br>
+   <div> Description: <input type="text" id="descript" name="descrip"></div><br>
+   <div> Content: <textarea rows="4" cols="50" id="content" name="coyountent" form="makepost"></textarea></div><br>
+    <div>Categories:<input type ="text" id ="cat" name="categories"></div><br>
    <div> Visibility:
-   <select>
+   <select id="visible">
            <option value="ME">Me Only</option>
            <option value="FRIENDS">Your friends on all server </option>
            <option value="FRIENDS_OF_FRIENDS">Friends of friends </option>
@@ -33,6 +33,31 @@
    </div>
    <input type="submit" value="Post">
    </div>
+
+
+    <script type='text/javascript'>
+ $("#makepost").submit(function(event) {
+             /* stop form from submitting normally */
+             event.preventDefault();
+
+             var $form = $( this ), url = $form.attr( 'action' );
+
+              /* Send the data using post with element id name and name2*/
+       /* Send the data using post with element id name and name2*/
+      var posting = $.post( url, { title: $('#title').val(),
+                                   Description: $('#name2').val(),
+                                   Content: $('#descript').val(),
+                                   Categories: $('#cat').val(),
+                                   Visibility: $('#visible').val()
+
+      } );
+
+      /* Alerts the results */
+      posting.done(function( data ) {
+        alert('success');
+      });
+    }
+    </scirpt>
 </div>
 </div>
 </div>
