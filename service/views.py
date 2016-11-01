@@ -101,6 +101,106 @@ def posts_handler_specific(request, id):
             return HttpResponse(status=403)
 
 
+def author_posts_handler(request):
+	#Posts that are visible to the currently authenticated user
+
+	if (request.method == 'GET'):
+
+		user = check_authenticate(request)
+		if(user == None):
+			return HttpResponse(status=403)
+		try:
+			author = Author.objects.get(user_id=user.id)
+		except:
+			return HttpResponse(status=404)
+
+		host = "http://127.0.0.1:8000/"
+		service_link = host + "service/"
+
+		#Deal with friends and stuff here later.
+		posts = Post.objects.filter(
+			Q(author = author.id) | Q(visibility = 'PUBLIC')
+			).order_by('-published')
+
+		count = posts.count()
+
+		#Check/get page size
+		if 'size' not in request.GET:
+			page_size = 25
+		else:
+			try:
+				page_size = int(request.GET['size'])
+			except:
+				page_size = 25
+
+		#Check/get current page
+		if 'page' not in request.GET:
+			current_page = 0
+		else:
+			try:
+				current_page = int(request.GET['page'])
+			except:
+				current_page = 0
+
+		returnjson = {}
+		returnjson['query'] = "posts"
+		returnjson['count'] = posts.count()
+		returnjson['size'] = page_size
+
+		if (current_page * page_size + page_size) < count:
+			returnjson['next'] = service_link + "author/posts?page=" + (page + 1)
+		if(current_page != 0):
+			returnjson['previous'] = service_link + "author/posts?page=" + (page - 1)
+
+		returnjson['posts'] = []
+
+		for item in posts[current_page*page_size:current_page*page_size+page_size]:
+			workingdict = {}
+			workingdict['title'] = item.title
+			workingdict['source'] = item.source
+			workingdict['origin'] = item.origin
+			workingdict['description'] = item.description
+			workingdict['contentType'] = item.contentType
+			workingdict['content'] = item.content
+			workingdict['id'] = item.id
+			workingdict['published'] = item.published.strftime("%Y-%m-%dT%H:%M:%S+00:00")
+			workingdict['categories'] = item.categories.split(",")
+			comments = item.comment_set.all().order_by('-published')
+			workingdict['author'] = {}
+			workingdict['author']['id'] = item.author.id
+			workingdict['author']['host'] = item.author.host
+			workingdict['author']['displayname'] = item.author.displayName
+			workingdict['author']['url'] = item.author.url
+			workingdict['author']['github'] = item.author.github
+
+
+			workingdict['visibility'] = item.visibility
+			workingdict['count'] = comments.count()
+			workingdict['size'] = page_size
+			workingdict['next'] = service_link + "posts/" + str(item.id) + "/comments"
+			workingdict['comments'] = []
+			for comment in comments[:5]:
+				workingcomment = {}
+				workingcomment['author'] = {}
+				workingcomment['author']['id'] = comment.author.id
+				workingcomment['author']['host'] = comment.author.host
+				workingcomment['author']['displayName'] = comment.author.displayName
+				workingcomment['author']['url'] = comment.author.url
+				workingcomment['author']['github'] = comment.author.github
+				workingcomment['comment'] = comment.comment
+				workingcomment['contentType'] = comment.contentType
+				workingcomment['published'] = comment.published.strftime("%Y-%m-%dT%H:%M:%S+00:00")
+				workingcomment['id'] = comment.id
+				workingdict['comments'].append(workingcomment)
+
+
+			returnjson['posts'].append(workingdict)
+
+		return HttpResponse(json.dumps(returnjson))
+
+
+	return HttpResponse(status=405)
+
 def author_handler(request):
     if (request.method == 'POST'):
         return

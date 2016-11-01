@@ -19,12 +19,11 @@ def JSONEncoder_newdefault(self, o):
 JSONEncoder.default = JSONEncoder_newdefault
 
 VISIBILITY_CHOICES = (
-    ('0', 'ME'),
-    ('1', 'OTHER_AUTHOR'),
-    ('2', 'FRIENDS'),
-    ('3', 'FRIENDS_OF_FRIENDS'),
-    ('4', 'HOST_FRIENDS'),
-    ('5', 'ALL')
+    ('PRIVATE', 'PRIVATE'),
+    ('SERVERONLY', 'SERVERONLY'),
+    ('FRIENDS', 'FRIENDS'),
+    ('FOAF', 'FOAF'),
+    ('PUBLIC', 'PUBLIC')
 )
 
 class Author(models.Model):
@@ -53,7 +52,7 @@ class Post(models.Model):
     author = models.ForeignKey(Author, on_delete=models.CASCADE)
     categories = models.TextField(null=True)
     published = models.DateTimeField(auto_now=True)
-    visibility = models.CharField(max_length=1, choices=VISIBILITY_CHOICES, default='0')
+    visibility = models.CharField(max_length=10, choices=VISIBILITY_CHOICES, default='0')
     def __str__(self):
         return self.title
 
