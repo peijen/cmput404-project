@@ -75,14 +75,14 @@ def posts_handler_specific(request, id):
         post.save()
         return HttpResponse(status=200)
 
-    elif (request.method == 'DELETE'):
+    elif (request.method == 'GET'):
         # validation to see if they can actually access this post based on its
         # permissions
         post = Post.objects.get(pk=id)
         serialized_post = serializers.serialize('json', [post])
         return JsonResponse(serialized_post, safe=False)
 
-    elif (request.method == 'GET'):
+    elif (request.method == 'DELETE'):
 
         user = check_authenticate(request)
         if(user == None):
