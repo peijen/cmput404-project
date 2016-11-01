@@ -41,11 +41,33 @@ def create_json_response_with_location(data, id, path):
 def posts_handler_generic(request):
 
     if (request.method == 'POST'):
-        # TODO: ADD validation
-        post = json.loads(request.body.strip("'<>() ").replace('\'', '\"'))
-        new_post = create_post(post)
-        data = model_to_dict(new_post)
-        return create_json_response_with_location(data, new_post.id, request.path)
+		# TODO: ADD validation
+        user = check_authenticate(request)
+        if(user == None):
+        	return HttpResponse(status=403)
+        try:
+        	author = Author.objects.get(user_id=user.id)
+        except:
+        	return HttpResponse(status=403)
+
+        post = json.loads(request.body)
+
+        #post = {}
+        #post["title"] = "hello"
+        #post["description"] = "desc"
+        #post["content"] = "test"
+        #post["categories"] = "cat"
+        #post["visibility"] = "ALL"
+
+        post['source'] = "http://127.0.0.1:8000/posts/fixthislater"
+        post['origin'] = "http://127.0.0.1:8000/posts/originfixthislater"
+        post['author_id'] = author.id
+        post['contentType'] = "text/plain"
+
+        create_post(post)
+
+        return HttpResponse(json.dumps(post))
+        #return create_json_response_with_location(data, new_post.id, request.path)
 
     elif (request.method == 'GET'):
         # TODO: this should return all the posts that a user can see, i.e their
