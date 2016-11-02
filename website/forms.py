@@ -30,6 +30,17 @@ class UserRegisterForm(forms.ModelForm):
         return password2
 
 class ProfileForm(forms.ModelForm):
+
+    firstName = forms.CharField(label="First Name", widget=forms.TextInput(attrs={'class': 'form-control'}))
+    lastName = forms.CharField(label="Last Name", widget=forms.TextInput(attrs={'class': 'form-control'}))
+    displayName = forms.CharField(label="Display Name", widget=forms.TextInput(attrs={'class': 'form-control'}))
+    email = forms.EmailField(label="Email", widget=forms.TextInput(attrs={'class': 'form-control'}))
+    github = forms.CharField(label="Github", widget=forms.TextInput(attrs={'class': 'form-control'}))
+    bio = forms.CharField(label="Bio", widget=forms.Textarea(attrs={'class': 'form-control'}))
+
     class Meta:
         model = Author
-        fields = ('firstName', 'lastName', 'displayName', 'email','host', 'url', 'github', 'bio')
+
+        fields = ('firstName', 'lastName', 'displayName', 'email', 'github', 'bio')
+
+
