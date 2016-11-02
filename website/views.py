@@ -69,3 +69,9 @@ def update_profile(request):
     return render(request, 'profile.html', {
         'profile_form': profile_form
     })
+
+def view_profile(request, id):
+    if (request.method == 'GET'):
+        #author = Author.objects.get(id=id)
+
+        return render(request, 'author.html')

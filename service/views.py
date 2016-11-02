@@ -219,7 +219,7 @@ def author_posts_handler(request):
 
             returnjson['posts'].append(workingdict)
 
-        return HttpResponse(json.dumps(returnjson))
+        return JsonResponse(returnjson)
 
 
     return HttpResponse(status=405)
@@ -254,7 +254,7 @@ def author_handler(request, id):
         response['email'] = author.email
         response['bio'] = author.bio
 
-        return HttpResponse(json.dumps(response))
+        return JsonResponse(response)
 
 
 def friend_handler(request):
