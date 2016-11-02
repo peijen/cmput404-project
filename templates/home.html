@@ -14,4 +14,29 @@
 </div>
 </div>
 </div>
+
+<div class="entry">
+
+</div>
+<script type="text/javascript">
+$.ajax({
+    url: "/service/author/posts",
+    type: "GET",
+    dataType: 'json',
+    complete: function (data) {
+        var news = document.getElementsByClassName("entry")[0];
+        var ret_text = JSON.parse(data.responseText);
+        var posts = ret_text["posts"];
+        for (var i = 0; i < posts.length; i++) {
+          var h5 = document.createElement("h5");
+          h5.innerHTML = "TITLE: " + posts[i].title;
+          news.appendChild(h5);
+          var p = document.createElement("p");
+          p.innerHTML = "description: " + posts[i].description;
+          news.appendChild(p);
+        }
+    }
+});
+
+</script>
 {% endblock %}
