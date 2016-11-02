@@ -62,7 +62,6 @@ def posts_handler_generic(request):
         post['source'] = "http://127.0.0.1:8000/posts/fixthislater"
         post['origin'] = "http://127.0.0.1:8000/posts/originfixthislater"
         post['author_id'] = author.id
-        post['contentType'] = "text/plain"
 
         create_post(post)
 

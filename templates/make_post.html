@@ -15,12 +15,26 @@
   <!--TODO need to where figure out where to send this -->
   <form action="" method="POST" id="makepost">
   {% csrf_token %}
-  <div> Title: <input type ="text" id ="title" name="title"></div><br>
-   <div> Description: <input type="text" id="description" name="description"></div><br>
-   <div> Content: <textarea rows="4" cols="50" id="content" name="content" form="makepost"></textarea></div><br>
-    <div>Categories:<input type ="text" id ="cat" name="categories"></div><br>
-   <div> Visibility:
-   <select id="visible" name="visibility">
+  <div class="form-group"> 
+    <label for="title">Title</label>
+    <input type ="text" id="title" name="title" placeholder="Title" class="form-control">
+  </div>
+   <div class="form-group">
+    <label for="description">Description</label>
+    <input type="text" id="description" name="description" class="form-control" placeholder="Description">
+   </div>
+   <div class="form-group">
+    <label for="content">Content</label>
+    <textarea rows="4" cols="50" id="content" name="content" form="makepost" class="form-control" placeholder="Content"></textarea>
+   </div>
+    <div class="form-group">
+      <label for="cat">Categories</label>
+      <input type ="text" id ="cat" name="categories" class="form-control" placeholder="Categories (separate by comma)">
+
+    </div>
+   <div class="form-group">
+    <label for="visible">Visibility</label>
+   <select id="visible" name="visibility" class="form-control">
            <option value="PRIVATE">Me Only</option>
            <option value="FRIENDS">Your friends on all server </option>
            <option value="FOAF">Friends of friends </option>
@@ -28,7 +42,14 @@
            <option value="PUBLIC">All</option>
    </select>
    </div>
-   <input type="submit" value="Post" id="submitpost">
+   <div class="form-group">
+    <label for="texttype">Text Type</label>
+    <select id="texttype" name="contentType" class="form-control">
+           <option value="text/plain">Text</option>
+           <option value="text/x-markdown">Markdown</option>
+   </select>
+   </div>
+   <input type="submit" value="Post" id="submitpost" class="btn btn-default">
    </form>
    </div>
 
@@ -71,7 +92,7 @@ $("#makepost").submit(function(e){
     //Save Form Data........
     $.ajax({
         cache: false,
-        url : 'http://127.0.0.1:8000{% url 'service:post_handler_generic'%}',
+        url : '{% url 'service:post_handler_generic'%}',
         type: "POST",
         dataType : "json",
         data : JSON.stringify(data),
@@ -80,7 +101,9 @@ $("#makepost").submit(function(e){
             //Where $(this) => context == FORM
             console.log(callback)
 
-            $(this).html("Received HTTP 200. Post should now be in database.");
+            //$(this).html("Received HTTP 200. Post should now be in database.");
+            window.location.href = "{% url 'website:home'%}"
+
         },
         error : function(xhr, thrownError){
             console.log(xhr.status);
