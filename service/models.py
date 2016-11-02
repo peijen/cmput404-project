@@ -1,9 +1,10 @@
 from __future__ import unicode_literals
-
 from django.db import models
 
 import uuid
 from django.contrib.auth.models import User
+from django.dispatch import receiver
+from django.db.models.signals import post_save
 
 '''
 Dealing with no UUID serialization support in json
@@ -27,19 +28,29 @@ VISIBILITY_CHOICES = (
 )
 
 class Author(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     id = models.UUIDField(primary_key=True, default=uuid.uuid4)
-    host = models.CharField(max_length=500)
-    displayName = models.CharField(max_length=50)
-    url = models.CharField(max_length=500)
-    github = models.CharField(max_length=500)
-    user = models.OneToOneField(User, on_delete=models.SET_NULL, null=True, blank=True)
-    email = models.EmailField(max_length=254, default="")
-    firstName = models.CharField(max_length=30, default="")
-    lastName = models.CharField(max_length=30, default="")
-    bio = models.TextField(default="")
+    host = models.CharField(max_length=500, null=True, blank=True)
+    displayName = models.CharField(max_length=50, null=True, blank=True, default='')
+    url = models.CharField(max_length=500, null=True, blank=True)
+    github = models.CharField(max_length=500, null=True, blank=True)
+    email = models.EmailField(max_length=254, default="" , null=True, blank=True)
+    firstName = models.CharField(max_length=30, default="" , null=True, blank=True)
+    lastName = models.CharField(max_length=30, default="", null=True, blank=True)
+    bio = models.TextField(default="", null=True, blank=True)
     friends = models.ForeignKey("self", null=True, blank=True)
     def __str__(self):
         return self.displayName
+
+@receiver(post_save, sender=User)
+def create_author(sender, instance, created, **kwargs):
+    if created:
+        Author.objects.create(user=instance)
+
+@receiver(post_save, sender=User)
+def save_user_profile(sender, instance, **kwargs):
+    instance.author.save()
+
 
 class Post(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4)

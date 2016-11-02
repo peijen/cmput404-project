@@ -4,6 +4,9 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login
 from .forms import UserRegisterForm
 from django.views.generic import View
+from django.db import transaction
+from .forms import ProfileForm
+from django.contrib import messages
 
 
 
@@ -49,3 +52,20 @@ class UserRegisterForm(View):
 @login_required(login_url="login/")
 def make_post(request):
     return render(request, "make_post.html")
+
+
+@login_required(login_url="login/")
+@transaction.atomic
+def update_profile(request):
+    if request.method == 'POST':
+        profile_form = ProfileForm(request.POST, instance=request.user.author)
+        if profile_form.is_valid():
+            profile_form.save()
+            #TODO: send some verification message
+
+            #TODO: should have an else: send some failure message. possibly not needed.
+    else:
+        profile_form = ProfileForm(instance=request.user.author)
+    return render(request, 'profile.html', {
+        'profile_form': profile_form
+    })

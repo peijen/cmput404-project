@@ -1,6 +1,7 @@
 from django.contrib.auth.forms import AuthenticationForm
 from django import forms
 from django.contrib.auth.models import User
+from service.models import Author
 
 class LoginForm(AuthenticationForm):
     username = forms.CharField(label="Username", max_length=30,
@@ -16,7 +17,6 @@ class UserRegisterForm(forms.ModelForm):
         model = User
         fields = [
             'username',
-            'email',
             'password'
         ]
 
@@ -26,3 +26,8 @@ class UserRegisterForm(forms.ModelForm):
         if password != password2:
             raise forms.ValidationError("Passwords do not match")
         return password2
+
+class ProfileForm(forms.ModelForm):
+    class Meta:
+        model = Author
+        fields = ('firstName', 'lastName', 'displayName', 'email','host', 'url', 'github', 'bio')
