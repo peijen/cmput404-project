@@ -10,8 +10,10 @@ class LoginForm(AuthenticationForm):
                                widget=forms.PasswordInput(attrs={'class': 'form-control', 'name': 'password'}))
 
 class UserRegisterForm(forms.ModelForm):
-    password = forms.CharField(widget=forms.PasswordInput)
-    password2 = forms.CharField(label="Password Confirmation", widget=forms.PasswordInput)
+    password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}))
+    password2 = forms.CharField(label="Password Confirmation", widget=forms.PasswordInput(attrs={'class': 'form-control'}))
+    username = forms.CharField(label="Username", widget=forms.TextInput(attrs={'class': 'form-control'}))
+    username.help_text = "Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only."
 
     class Meta:
         model = User
