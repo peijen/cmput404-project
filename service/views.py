@@ -171,9 +171,9 @@ def author_posts_handler(request):
         returnjson['size'] = page_size
 
         if (current_page * page_size + page_size) < count:
-            returnjson['next'] = service_link + "author/posts?page=" + (current_page + 1)
+            returnjson['next'] = service_link + "author/posts?page=" + str((current_page + 1))
         if(current_page != 0):
-            returnjson['previous'] = service_link + "author/posts?page=" + (current_page - 1)
+            returnjson['previous'] = service_link + "author/posts?page=" + str((current_page - 1))
 
         returnjson['posts'] = []
 
