@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
     'service',
     'website',
 ]
@@ -62,6 +63,8 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 LOGIN_REDIRECT_URL = '/'
+
+SITE_ID = 1
 
 ROOT_URLCONF = 'cmput404.urls'
 

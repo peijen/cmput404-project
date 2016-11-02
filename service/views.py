@@ -5,6 +5,7 @@ from django.db.models import Q
 from django.forms.models import model_to_dict
 from django.core import serializers
 from .authenticate import check_authenticate
+from django.contrib.sites.models import Site
 import json
 
 # Create your views here.
@@ -110,7 +111,7 @@ def posts_handler_specific(request, id):
             return HttpResponse(status=403)
 
         try:
-        	author = Author.objects.get(user_id=user.id)
+        	author = Author.objects.get(id=user.id)
         	post = Post.objects.get(pk=id)
         except:
         	return HttpResponse(status=404)
@@ -136,7 +137,6 @@ def author_posts_handler(request):
 			return HttpResponse(status=404)
 
 		host = "http://127.0.0.1:8000/"
-		service_link = host + "service/"
 
 		#Deal with friends and stuff here later.
 		posts = Post.objects.filter(
@@ -222,10 +222,37 @@ def author_posts_handler(request):
 
 	return HttpResponse(status=405)
 
-def author_handler(request):
+def get_host():
+    host = Site.objects.get_current().domain
+    return host
+
+def get_service_link():
+    service_link = get_host() + "service/"
+    return service_link
+
+def author_handler(request, id):
+    #Return the foreign author's profile
     if (request.method == 'POST'):
-        return
-    return HttpResponse("")
+        return HttpResponse("")
+    elif (request.method == 'GET'):
+        author = Author.objects.get(id=id)
+
+        response = {}
+        response['id'] = author.id
+        response['host'] = get_host()
+        response['displayName'] = author.displayName
+        response['url'] = get_host() + "author/" + str(author.id)
+
+        #Add friends here later
+        response['friends'] = []
+
+        response['github_username'] = author.github
+        response['first_name'] = author.firstName
+        response['last_name'] = author.lastName
+        response['email'] = author.email
+        response['bio'] = author.bio
+
+        return HttpResponse(json.dumps(response))
 
 
 def friend_handler(request):
