@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% block content %}
+ <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+ <script src="/static/js/js.cookie.js"></script>
+<div class="container">
+<div class="row">
+
+<div class="jumbotron">
+    <p>Make a post!</p>
+{% if error_message %}
+   <p><strong>{{error_message}}</strong></p>
+{% endif %}
+  <div>
+  <!--TODO need to where figure out where to send this -->
+  <form action="" method="POST" id="makepost">
+  {% csrf_token %}
+  <div> Title: <input type ="text" id ="title" name="title"></div><br>
+   <div> Description: <input type="text" id="description" name="description"></div><br>
+   <div> Content: <textarea rows="4" cols="50" id="content" name="content" form="makepost"></textarea></div><br>
+    <div>Categories:<input type ="text" id ="cat" name="categories"></div><br>
+   <div> Visibility:
+   <select id="visible" name="visibility">
+           <option value="PRIVATE">Me Only</option>
+           <option value="FRIENDS">Your friends on all server </option>
+           <option value="FOAF">Friends of friends </option>
+           <option value="SERVERONLY">Server Only </option>
+           <option value="PUBLIC">All</option>
+   </select>
+   </div>
+   <input type="submit" value="Post" id="submitpost">
+   </form>
+   </div>
+
+
+    <script type='text/javascript'>
+
+
+
+$("#makepost").submit(function(e){
+
+    e.preventDefault();
+
+    var data = {}
+    var Form = this;
+    var csrftoken = Cookies.get('csrftoken');
+
+    //Gathering the Data
+    //and removing undefined keys(buttons)
+    $.each(this.elements, function(i, v){
+            var input = $(v);
+        data[input.attr("name")] = input.val();
+        delete data["undefined"];
+    });
+
+    function csrfSafeMethod(method) {
+    // these HTTP methods do not require CSRF protection
+    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+    }
+
+    $.ajaxSetup({
+      beforeSend: function(xhr, settings) {
+          if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+              xhr.setRequestHeader("X-CSRFToken", csrftoken);
+          }
+      }
+    });
+
+    //Form Validation goes here....
+
+    //Save Form Data........
+    $.ajax({
+        cache: false,
+        url : 'http://127.0.0.1:8000{% url 'service:post_handler_generic'%}',
+        type: "POST",
+        dataType : "json",
+        data : JSON.stringify(data),
+        context : Form,
+        success : function(callback){
+            //Where $(this) => context == FORM
+            console.log(callback)
+
+            $(this).html("Received HTTP 200. Post should now be in database.");
+        },
+        error : function(xhr, thrownError){
+            console.log(xhr.status);
+            console.log(thrownError)
+            $(this).html("Error!");
+        }
+    });
+  });
+    </script>
+</div>
+</div>
+</div>
+{% endblock %}

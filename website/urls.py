@@ -12,5 +12,6 @@ urlpatterns = [
     url(r'^home/$', views.home, name='home'),
     url(r'^register_success/$', views.register_success, name='register_success'),
     url(r'^register/$', views.UserRegisterForm.as_view(), name='register'),
-    url(r'^login/register/$', views.UserRegisterForm.as_view(), name='register')
+    url(r'^login/register/$', views.UserRegisterForm.as_view(), name='register'),
+    url(r'^make_post/$', views.make_post, name ='make_post')
 ]

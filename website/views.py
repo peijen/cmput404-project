@@ -45,3 +45,7 @@ class UserRegisterForm(View):
                     return render(request, "home.html")
             return render(request, "register_success.html")
         return render(request, self.template_name, {'form': form})
+
+@login_required(login_url="login/")
+def make_post(request):
+    return render(request, "make_post.html")
