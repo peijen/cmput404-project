@@ -74,6 +74,6 @@ def update_profile(request):
 @login_required(login_url="login/")
 def view_profile(request, id):
     if (request.method == 'GET'):
-        author = str(Author.objects.get(id=id))
-        return render(request, 'author.html')
+        author = Author.objects.get(id=id).id
+        return render(request, 'author.html', {'a_id': author})
 

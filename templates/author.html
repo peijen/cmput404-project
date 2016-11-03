@@ -21,8 +21,7 @@
 </div>
 <script type="text/javascript">
 $.ajax({
-    //url: "/service/author/f7412b4f-845b-4402-9dda-a4083ac3f9db", //this is hardcoded atm
-    url: "/service/author/{{ user.author.id }}", //this might have some bugs for future friends
+    url: "/service/author/{{ a_id }}",
     type: "GET",
     dataType: 'json',
     complete: function (data) {
