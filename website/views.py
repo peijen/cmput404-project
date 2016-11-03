@@ -7,6 +7,7 @@ from django.views.generic import View
 from django.db import transaction
 from .forms import ProfileForm
 from django.contrib import messages
+from service.models import Author
 
 
 
@@ -69,3 +70,10 @@ def update_profile(request):
     return render(request, 'profile.html', {
         'profile_form': profile_form
     })
+
+@login_required(login_url="login/")
+def view_profile(request, id):
+    if (request.method == 'GET'):
+        author = str(Author.objects.get(id=id))
+        return render(request, 'author.html')
+

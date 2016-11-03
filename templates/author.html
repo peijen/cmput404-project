@@ -1,0 +1,59 @@
+
+{% extends 'base.html' %}
+
+{% block content %}
+ <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+ <script src="/static/js/js.cookie.js"></script>
+ <link rel="stylesheet" href="/static/css/author.css"/>
+<div class="container">
+<div class="row">
+
+<div class="jumbotron">
+  <h1>Hello</h1>
+  <p>You are viewing an author.</p>
+
+</div>
+</div>
+</div>
+
+<div class="entry">
+
+</div>
+<script type="text/javascript">
+$.ajax({
+    //url: "/service/author/f7412b4f-845b-4402-9dda-a4083ac3f9db", //this is hardcoded atm
+    url: "/service/author/{{ user.author.id }}", //this might have some bugs for future friends
+    type: "GET",
+    dataType: 'json',
+    complete: function (data) {
+        var news = document.getElementsByClassName("entry")[0];
+        var ret_text = JSON.parse(data.responseText);
+        var hfirst = document.createElement("h5");
+        hfirst.innerHTML = "First Name: " + ret_text.first_name;
+        news.appendChild(hfirst);
+        var hlast = document.createElement("h5");
+        hlast.innerHTML = "Last Name: " + ret_text.last_name;
+        news.appendChild(hlast);
+        var dname = document.createElement("h5");
+        dname.innerHTML = "Display Name: " + ret_text.displayName;
+        news.appendChild(dname);
+        var email = document.createElement("h5");
+        email.innerHTML = "Email: " + ret_text.email;
+        news.appendChild(email);
+        var host_name = document.createElement("h5");
+        host_name.innerHTML = "Host: " + ret_text.host;
+        news.appendChild(host_name);
+        var url = document.createElement("h5");
+        url.innerHTML = "URL: " + ret_text.url;
+        news.appendChild(url);
+        var github = document.createElement("h5");
+        github.innerHTML = "Github: " + ret_text.github_username;
+        news.appendChild(github);
+        var bio = document.createElement("h5");
+        bio.innerHTML = "Bio: " + ret_text.bio;
+        news.appendChild(bio);
+    }
+});
+
+</script>
+{% endblock %}
