@@ -15,5 +15,5 @@ urlpatterns = [
     url(r'^login/register/$', views.UserRegisterForm.as_view(), name='register'),
     url(r'^make_post/$', views.make_post, name ='make_post'),
     url(r'^profile/$', views.update_profile, name='update_profile'),
-    url(r'^profile/(?P<id>[^/]+)/?$', views.view_profile, name='view_profile'),
+    url(r'^author/(?P<id>[^/]+)/?$', views.view_profile, name='view_profile'),
 ]
