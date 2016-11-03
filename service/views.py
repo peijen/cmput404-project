@@ -38,6 +38,59 @@ def create_json_response_with_location(data, id, path):
     json_response.status_code = 201
     return json_response
 
+def posts_comments_handler(request, id):
+
+    try:
+        post = Post.objects.get(id=id)
+    except:
+        return HttpResponse(status=404)
+
+    current_host = get_host
+
+    #Do they have access to this?
+    if(post.visibility == "PRIVATE"):
+        return HttpResponse(status=404)
+    elif(post.visibility == "SERVERONLY" and request.META['HTTP_HOST'] != get_host(True)):
+        return HttpResponse(status=404)
+
+    #Add friend check here, etc.
+
+    if(request.method == 'POST'):
+
+        user = check_authenticate(request)
+        if(user == None):
+            return HttpResponse(status=403)
+        try:
+            author = Author.objects.get(user_id=user.id)
+        except:
+            return HttpResponse(status=403)
+
+        comment = json.loads(request.body)
+
+        comment['post'] = post.id
+        comment['author'] = author.id
+
+        #comment['comment'] = "test"
+        #comment['contentType'] = "text/plain"
+
+        new_comment = Comment.objects.create(
+                post_id = comment['post'],
+                author_id = comment['author'],
+                comment = comment['comment'],
+                contentType = comment['contentType']
+            )
+
+        comment['id'] = new_comment.id
+        comment['published'] = new_comment.published.strftime("%Y-%m-%dT%H:%M:%S+00:00")
+
+        return HttpResponse(json.dumps(comment))
+
+    elif(request.method == 'GET'):
+
+        #Todo: show all comments for this post
+        return HttpResponse('')
+
+
 
 def posts_handler_generic(request):
 
@@ -224,8 +277,13 @@ def author_posts_handler(request):
 
     return HttpResponse(status=405)
 
-def get_host():
+def get_host(removeTrailingSlash=False):
     host = Site.objects.get_current().domain
+
+    if removeTrailingSlash:
+        if host.endswith('/'):
+            host = host[:-1]
+
     return host
 
 def get_service_link():
