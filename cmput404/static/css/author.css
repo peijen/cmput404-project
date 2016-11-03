@@ -1,3 +1,25 @@
-h5 {
-  color: yellow;
+#dname {
+	float left;
+	margin: 2% 7% 5% 7%;
+}
+
+.info {
+	display: table;
+	float: left;
+	margin: 0 0 1% 10%;
+	font-size: 150%;
+}
+
+.infov {
+	display: table;
+	margin: 0 0 1% 40%;
+	font-size: 150%;
+}
+
+.grey {
+	background-color: grey;
+}
+
+#jumbobody {
+	margin: 0 20% 0 20%;
 }

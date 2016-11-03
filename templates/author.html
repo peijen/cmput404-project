@@ -7,17 +7,11 @@
  <link rel="stylesheet" href="/static/css/author.css"/>
 <div class="container">
 <div class="row">
-
-<div class="jumbotron">
-  <h1>Hello</h1>
-  <p>You are viewing an author.</p>
-
 </div>
 </div>
-</div>
-
 <div class="entry">
-
+</div>
+<div class = "jumbotron" id="jumbobody">
 </div>
 <script type="text/javascript">
 $.ajax({
@@ -25,32 +19,71 @@ $.ajax({
     type: "GET",
     dataType: 'json',
     complete: function (data) {
-        var news = document.getElementsByClassName("entry")[0];
+        var newshead = document.getElementsByClassName("entry")[0];
+        var news = document.getElementsByClassName("jumbotron")[0];
         var ret_text = JSON.parse(data.responseText);
-        var hfirst = document.createElement("h5");
-        hfirst.innerHTML = "First Name: " + ret_text.first_name;
-        news.appendChild(hfirst);
-        var hlast = document.createElement("h5");
-        hlast.innerHTML = "Last Name: " + ret_text.last_name;
-        news.appendChild(hlast);
-        var dname = document.createElement("h5");
-        dname.innerHTML = "Display Name: " + ret_text.displayName;
-        news.appendChild(dname);
-        var email = document.createElement("h5");
-        email.innerHTML = "Email: " + ret_text.email;
+        
+        var dname = document.createElement("h1");
+        dname.setAttribute("id", "dname");
+        dname.innerHTML = "Hello, " + ret_text.displayName;
+        newshead.appendChild(dname); 
+        
+        var fn = document.createElement("div");
+        fn.setAttribute("class", "info");
+        fn.innerHTML = "First Name:";
+        news.appendChild(fn);
+        var fnv = document.createElement("div");
+        fnv.setAttribute("class", "infov");
+        fnv.innerHTML = ret_text.first_name;
+        news.appendChild(fnv);
+        var ln = document.createElement("div");
+        ln.setAttribute("class", "info");
+        ln.innerHTML = "Last Name:";
+        news.appendChild(ln);
+        var lnv = document.createElement("div");
+        lnv.setAttribute("class", "infov");
+        lnv.innerHTML = ret_text.last_name;
+        news.appendChild(lnv);
+        var email = document.createElement("div");
+        email.setAttribute("class", "info");
+        email.innerHTML = "Email:";
         news.appendChild(email);
-        var host_name = document.createElement("h5");
-        host_name.innerHTML = "Host: " + ret_text.host;
+        var emailv = document.createElement("div");
+        emailv.setAttribute("class", "infov");
+        emailv.innerHTML = ret_text.email;
+        news.appendChild(emailv);
+        var host_name = document.createElement("div");
+        host_name.setAttribute("class", "info");
+        host_name.innerHTML = "Host:";
         news.appendChild(host_name);
-        var url = document.createElement("h5");
-        url.innerHTML = "URL: " + ret_text.url;
+        var host_namev = document.createElement("div");
+        host_namev.setAttribute("class", "infov");
+        host_namev.innerHTML = ret_text.host;
+        news.appendChild(host_namev);
+        var url = document.createElement("div");
+        url.setAttribute("class", "info");
+        url.innerHTML = "URL:";
         news.appendChild(url);
-        var github = document.createElement("h5");
-        github.innerHTML = "Github: " + ret_text.github_username;
+        var urlv = document.createElement("div");
+        urlv.setAttribute("class", "infov");
+        urlv.innerHTML = ret_text.url;
+        news.appendChild(urlv);
+        var github = document.createElement("div");
+        github.setAttribute("class", "info");
+        github.innerHTML = "Github:";
         news.appendChild(github);
-        var bio = document.createElement("h5");
-        bio.innerHTML = "Bio: " + ret_text.bio;
+        var githubv = document.createElement("div");
+        githubv.setAttribute("class", "infov");
+        githubv.innerHTML = ret_text.github_username;
+        news.appendChild(githubv);
+        var bio = document.createElement("div");
+        bio.setAttribute("class", "info");
+        bio.innerHTML = "Bio:";
         news.appendChild(bio);
+        var biov = document.createElement("div");
+        biov.setAttribute("class", "infov");
+        biov.innerHTML = ret_text.bio;
+        news.appendChild(biov);
     }
 });
 
