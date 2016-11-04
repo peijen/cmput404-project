@@ -32,6 +32,50 @@ $.ajax({
         function buttonAction(){
           console.log("Button ID: " + this.id);
           console.log("Input Text: " + document.getElementById(this.id).value);
+
+          var sendData = {}
+          var csrftoken = Cookies.get('csrftoken');
+          sendData['comment'] = document.getElementById(this.id).value;
+          sendData['contentType'] = "text/plain";
+
+          function csrfSafeMethod(method) {
+            // these HTTP methods do not require CSRF protection
+            return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+        }
+
+          $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+            }
+           });
+
+          var send_url = '{% url 'service:comment_handler' "replacetext" %}';
+          send_url = send_url.replace('replacetext', this.id);
+
+          $.ajax({
+        cache: false,
+        url : send_url,
+        type: "POST",
+        dataType : "json",
+        context: this,
+        data : JSON.stringify(sendData),
+        success : function(callback){
+            //Where $(this) => context == FORM
+            console.log(callback)
+
+            //$(this).html("Received HTTP 200. Post should now be in database.");
+            //window.location.href = "{% url 'website:home'%}"
+
+        },
+        error : function(xhr, thrownError){
+            console.log(xhr.status);
+            console.log(thrownError)
+            $(this).html("Error!");
+        }
+    });
+
         }
 
         for (var i = 0; i <= posts.length; ++i) {
@@ -52,6 +96,7 @@ $.ajax({
           pcontent.innerHTML = posts[i].content;
           mainc.appendChild(pcontent);
 
+          /*
           if (posts[i].comments.length === 0) {
             var p2 = document.createElement("p");
             p2.fontSize = "xx-small";
@@ -66,7 +111,7 @@ $.ajax({
               p2.innerHTML = "Comment: " + comments[i].comment;
               mainc.appendChild(p2);
             }
-          }
+          }*/
           var text = document.createElement("input");
           text.type = "text";
           text.style.width="87%";
