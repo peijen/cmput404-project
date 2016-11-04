@@ -78,7 +78,7 @@ $.ajax({
 
         }
 
-        for (var i = 0; i <= posts.length; ++i) {
+        for (var i = 0; i < posts.length; ++i) {
           var mainc = document.createElement("div")
           mainc.className="container";
           mainc.style.backgroundColor="#ecf0f1";
@@ -96,22 +96,32 @@ $.ajax({
           pcontent.innerHTML = posts[i].content;
           mainc.appendChild(pcontent);
 
-          /*
-          if (posts[i].comments.length === 0) {
+          console.log(posts[i].id);
+
+          if (posts[i].count == 0) {
             var p2 = document.createElement("p");
             p2.fontSize = "xx-small";
             p2.innerHTML = "There are no comments for this post"
             mainc.appendChild(p2);
           }
           else{
+
+            
             var comments = posts[i].comments;
-            console.log(comments.length);
-            for (var i = 0; i < comments.length; ++i){
+
+            console.log(comments);
+
+            
+            //console.log(comments.length);
+            for (var k = 0; k < comments.length; ++k){
               var p2 = document.createElement("p");
-              p2.innerHTML = "Comment: " + comments[i].comment;
+              p2.innerHTML = "Comment: " + comments[k].comment;
               mainc.appendChild(p2);
             }
-          }*/
+            
+
+          }
+
           var text = document.createElement("input");
           text.type = "text";
           text.style.width="87%";
