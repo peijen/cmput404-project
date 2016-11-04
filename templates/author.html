@@ -25,7 +25,7 @@ $.ajax({
         var ret_text = JSON.parse(data.responseText);
         var display_name = document.createElement("h1");
         display_name.setAttribute("id", "display_name");
-        display_name.innerHTML = ret_text.displayName;
+        display_name.innerHTML = ret_text.displayName + "&nbsp";
         content_head.appendChild(display_name); 
         var first_name = document.createElement("div");
         first_name.setAttribute("class", "info");
