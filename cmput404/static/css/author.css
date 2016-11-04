@@ -23,3 +23,9 @@
 #jumbobody {
 	margin: 0 20% 0 20%;
 }
+
+#ppic {
+	float: right;
+	max-width: 200px;
+	margin: 0 5% 0 0;
+}
