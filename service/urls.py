@@ -8,7 +8,7 @@ app_name = 'service'
 #TODO: handle routes so that even things that don't end with '/' route to same endpoints
 urlpatterns = [
     url(r'^$', views.index, name='index'),
-    url(r'^posts/(?P<id>[^/]+)/comments/?$', views.posts_comments_handler, name = "views.posts_comments_handler"),
+    url(r'^posts/(?P<id>[^/]+)/comments/?$', views.posts_comments_handler),
     url(r'^posts/?$', views.posts_handler_generic, name='post_handler_generic'),
     url(r'^posts/(?P<id>[^/]+)/?$', views.posts_handler_specific,name='post_handler_specific'),
     url(r'^author/posts/?$', views.author_posts_handler),
