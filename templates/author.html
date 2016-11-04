@@ -33,7 +33,7 @@ $.ajax({
         content_info.appendChild(first_name);
         var first_name_value = document.createElement("div");
         first_name_value.setAttribute("class", "info_value");
-        first_name_value.innerHTML = ret_text.first_name;
+        first_name_value.innerHTML = ret_text.first_name + "&nbsp";
         content_info.appendChild(first_name_value);
         var last_name = document.createElement("div");
         last_name.setAttribute("class", "info");
@@ -41,7 +41,7 @@ $.ajax({
         content_info.appendChild(last_name);
         var last_name_value = document.createElement("div");
         last_name_value.setAttribute("class", "info_value");
-        last_name_value.innerHTML = ret_text.last_name;
+        last_name_value.innerHTML = ret_text.last_name + "&nbsp";
         content_info.appendChild(last_name_value);
         var email = document.createElement("div");
         email.setAttribute("class", "info");
@@ -49,7 +49,7 @@ $.ajax({
         content_info.appendChild(email);
         var email_value = document.createElement("div");
         email_value.setAttribute("class", "info_value");
-        email_value.innerHTML = ret_text.email;
+        email_value.innerHTML = ret_text.email + "&nbsp";
         content_info.appendChild(email_value);
         var host_name = document.createElement("div");
         host_name.setAttribute("class", "info");
@@ -57,7 +57,7 @@ $.ajax({
         content_info.appendChild(host_name);
         var host_name_value = document.createElement("div");
         host_name_value.setAttribute("class", "info_value");
-        host_name_value.innerHTML = ret_text.host;
+        host_name_value.innerHTML = ret_text.host + "&nbsp";
         content_info.appendChild(host_name_value);
         var url = document.createElement("div");
         url.setAttribute("class", "info");
@@ -65,7 +65,7 @@ $.ajax({
         content_info.appendChild(url);
         var url_value = document.createElement("div");
         url_value.setAttribute("class", "info_value");
-        url_value.innerHTML = ret_text.url;
+        url_value.innerHTML = ret_text.url + "&nbsp";
         content_info.appendChild(url_value);
         var github = document.createElement("div");
         github.setAttribute("class", "info");
@@ -73,7 +73,7 @@ $.ajax({
         content_info.appendChild(github);
         var github_value = document.createElement("div");
         github_value.setAttribute("class", "info_value");
-        github_value.innerHTML = ret_text.github_username;
+        github_value.innerHTML = ret_text.github_username + "&nbsp";
         content_info.appendChild(github_value);
         var bio = document.createElement("div");
         bio.setAttribute("class", "info");
@@ -81,7 +81,7 @@ $.ajax({
         content_info.appendChild(bio);
         var bio_value = document.createElement("div");
         bio_value.setAttribute("class", "info_value");
-        bio_value.innerHTML = ret_text.bio;
+        bio_value.innerHTML = ret_text.bio + "&nbsp";
         content_info.appendChild(bio_value);
     }
 });
