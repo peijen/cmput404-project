@@ -49,10 +49,14 @@ $.ajax({
               news.appendChild(p2);
             }
           }
+          var text = document.createElement("input");
+          text.type = "text";
+          news.appendChild(text);
           var btn = document.createElement("BUTTON");
           var t = document.createTextNode("Add a Comment");
           btn.appendChild(t);
           news.appendChild(btn);
+
         }
     }
 });
