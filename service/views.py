@@ -117,7 +117,9 @@ def posts_handler_generic(request):
         post['origin'] = "http://127.0.0.1:8000/posts/originfixthislater"
         post['author_id'] = author.id
 
-        create_post(post)
+        created = create_post(post)
+
+        post['id'] = created.id
 
         return HttpResponse(json.dumps(post))
         #return create_json_response_with_location(data, new_post.id, request.path)
