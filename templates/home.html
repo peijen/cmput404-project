@@ -66,7 +66,7 @@ $.ajax({
             console.log(callback)
 
             //$(this).html("Received HTTP 200. Post should now be in database.");
-            //window.location.href = "{% url 'website:home'%}"
+            window.location.reload(false);
 
         },
         error : function(xhr, thrownError){
@@ -106,19 +106,19 @@ $.ajax({
           }
           else{
 
-            
+
             var comments = posts[i].comments;
 
             console.log(comments);
 
-            
+
             //console.log(comments.length);
             for (var k = 0; k < comments.length; ++k){
               var p2 = document.createElement("p");
               p2.innerHTML = "Comment: " + comments[k].comment;
               mainc.appendChild(p2);
             }
-            
+
 
           }
 
