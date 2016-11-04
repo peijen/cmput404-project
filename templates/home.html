@@ -14,6 +14,7 @@
 </div>
 </div>
 </div>
+<p style="text-align:center; font-size:larger" >Recent Posts</p>
 
 <div class="entry">
 
@@ -28,24 +29,34 @@ $.ajax({
         var ret_text = JSON.parse(data.responseText);
         var posts = ret_text["posts"];
 
-        function buttonid(){
+        function buttonAction(){
           console.log("Button ID: " + this.id);
-
+          console.log("Input Text: " + document.getElementById(this.id).value);
         }
 
         for (var i = 0; i <= posts.length; ++i) {
+          var mainc = document.createElement("div")
+          mainc.className="container";
+          mainc.style.backgroundColor="#ecf0f1";
+          mainc.style.border = "thin solid grey";
+          news.appendChild(mainc)
+
           var id = posts[i].id;
-          var h5 = document.createElement("h5");
-          h5.innerHTML = "TITLE: " + posts[i].title;
-          news.appendChild(h5);
-          var p = document.createElement("p");
-          p.innerHTML = "description: " + posts[i].description;
-          news.appendChild(p);
+          var h2 = document.createElement("h2");
+          h2.innerHTML = posts[i].title;
+          mainc.appendChild(h2);
+          var h3 = document.createElement("h3");
+          h3.innerHTML = posts[i].description;
+          mainc.appendChild(h3);
+          var pcontent = document.createElement("p");
+          pcontent.innerHTML = posts[i].content;
+          mainc.appendChild(pcontent);
 
           if (posts[i].comments.length === 0) {
             var p2 = document.createElement("p");
+            p2.fontSize = "xx-small";
             p2.innerHTML = "There are no comments for this post"
-            news.appendChild(p2);
+            mainc.appendChild(p2);
           }
           else{
             var comments = posts[i].comments;
@@ -53,18 +64,21 @@ $.ajax({
             for (var i = 0; i < comments.length; ++i){
               var p2 = document.createElement("p");
               p2.innerHTML = "Comment: " + comments[i].comment;
-              news.appendChild(p2);
+              mainc.appendChild(p2);
             }
           }
           var text = document.createElement("input");
           text.type = "text";
-          news.appendChild(text);
+          text.style.width="87%";
+          text.id = id;
+          mainc.appendChild(text);
           var btn = document.createElement("BUTTON");
+          btn.className="btn btn-default";
           var t = document.createTextNode("Add a Comment");
           btn.appendChild(t);
-          news.appendChild(btn);
+          mainc.appendChild(btn);
           btn.id = id;
-          btn.onclick = buttonid;
+          btn.onclick = buttonAction;
 
 
 
