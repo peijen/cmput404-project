@@ -32,6 +32,35 @@ $.ajax({
         function buttonAction(){
           console.log("Button ID: " + this.id);
           console.log("Input Text: " + document.getElementById(this.id).value);
+          var csrftoken = Cookies.get('csrftoken');
+          var urlId = this.id;
+          var data = {};
+          data["comment"] = document.getElementById(this.id).value;
+          data["contentType"] = "text";
+
+          function csrfSafeMethod(method) {
+          // these HTTP methods do not require CSRF protection
+          return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+          }
+
+          $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+            }
+          });
+
+          $.ajax({
+            type: "POST",
+            url: "/service/posts/" + urlId + "/comments",
+            data: JSON.stringify(data),
+            dataType: "json",
+            success: function(callback) {
+              console.log(callback);
+              window.location.href = "{% url 'website:home'%}";
+            }
+          });
         }
 
         for (var i = 0; i <= posts.length; ++i) {
