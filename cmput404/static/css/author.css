@@ -1,4 +1,4 @@
-#dname {
+#display_name {
 	float left;
 	margin: 2% 7% 5% 7%;
 }
@@ -10,21 +10,17 @@
 	font-size: 150%;
 }
 
-.infov {
+.info_value {
 	display: table;
 	margin: 0 0 1% 40%;
 	font-size: 150%;
-}
-
-.grey {
-	background-color: grey;
 }
 
 #jumbobody {
 	margin: 0 20% 0 20%;
 }
 
-#ppic {
+#profile_picture {
 	float: right;
 	max-width: 200px;
 	margin: 0 5% 0 0;
