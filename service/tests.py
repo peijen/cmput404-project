@@ -10,7 +10,7 @@ c = Client()
 class TestPosts(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(username='user1', email='test@test.com', password='user1')
-        self.author = Author.objects.create(user_id=self.user.id)
+        self.author = Author.objects.get(user=self.user.id)
         c.login(username='user1', password='user1')
 
     def tearDown(self):
@@ -33,8 +33,8 @@ class TestPosts(TestCase):
             "categories":"test categories",
             "visibility": "0"
         }
-        response = c.post('/service/posts/', data=data, content_type="application/json")
-        self.assertEqual(response.status_code, 201)
+        response = c.post('/service/posts/', data=json.dumps(data), content_type="application/json")
+        self.assertEqual(response.status_code, 200)
 
     def test_can_retrieve_posts_with_http(self):
         Post.objects.create(title="Test123", author_id=self.author.id)
