@@ -166,10 +166,18 @@ def posts_handler_specific(request, id):
             return HttpResponse(status=403)
 
         try:
-            author = Author.objects.get(id=user.id)
             post = Post.objects.get(pk=id)
         except:
             return HttpResponse(status=404)
+
+        try:
+            author = Author.objects.get(user_id=user.id)
+            pass
+            
+        except Exception as e:
+
+            return HttpResponse(status=403)
+            raise
 
         if(post.author_id == author.id):
             post.delete()

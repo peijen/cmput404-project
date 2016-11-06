@@ -10,7 +10,7 @@ c = Client()
 class TestPosts(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(username='user1', email='test@test.com', password='user1')
-        self.author = Author.objects.get(user=self.user.id)
+        self.author = Author.objects.create(user_id=self.user.id)
         c.login(username='user1', password='user1')
 
     def tearDown(self):
@@ -80,15 +80,22 @@ class TestPosts(TestCase):
         should_exist = Post.objects.get(pk=response['location'].replace('/service/posts/', ''))
 
     def test_can_make_friend_requests(self):
-        author2 = Author.objects.create()
+        user2 = User.objects.create_user(username='testuser2', email='bebebebe@test.com', password='user2')
+        author2 = Author.objects.create(user_id=user2.id)
         response = c.post('/service/friendrequest/', json.dumps({"author_id": str(author2.id)}), content_type="application/json")
         should_exist = FriendRequest.objects.get(pk=response['location'].replace('/service/friendrequest/', ''))
+        user2.delete()
 
     def test_can_retrieve_pending_friend_requests(self):
-        author2 = Author.objects.create()
-        author3 = Author.objects.create()
-        author4 = Author.objects.create()
-        author5 = Author.objects.create()
+        user2 = User.objects.create_user(username='user2', email='test@test.com', password='test')
+        user3 = User.objects.create_user(username='user3', email='test@test.com', password='test')
+        user4 = User.objects.create_user(username='user4', email='test@test.com', password='test')
+        user5 = User.objects.create_user(username='user5', email='test@test.com', password='test')
+
+        author2 = Author.objects.create(user_id=user2.id)
+        author3 = Author.objects.create(user_id=user3.id)
+        author4 = Author.objects.create(user_id=user4.id)
+        author5 = Author.objects.create(user_id=user5.id)
         response = c.post('/service/friendrequest/', json.dumps({"author_id": str(author2.id)}), content_type="application/json")
         response = c.post('/service/friendrequest/', json.dumps({"author_id": str(author3.id)}), content_type="application/json")
         response = c.post('/service/friendrequest/', json.dumps({"author_id": str(author4.id)}), content_type="application/json")
