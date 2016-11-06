@@ -84,7 +84,6 @@ class TestPosts(TestCase):
         author2 = Author.objects.create(user_id=user2.id)
         response = c.post('/service/friendrequest/', json.dumps({"author_id": str(author2.id)}), content_type="application/json")
         should_exist = FriendRequest.objects.get(pk=response['location'].replace('/service/friendrequest/', ''))
-        user2.delete()
 
     def test_can_retrieve_pending_friend_requests(self):
         user2 = User.objects.create_user(username='user2', email='test@test.com', password='test')
