@@ -2,20 +2,26 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
-    <script src="/static/js/js.cookie.js"></script>
+
 <div class="container">
 <div class="row">
 
 <div class="jumbotron">
     <h1>Hello</h1>
     <p>You are on your Dashboard</p>
+    <p>Nothing here {$ 'yet' + '!' $}</p>
 </div>
 </div>
 </div>
 <p style="text-align:center; font-size:larger" >Recent Posts</p>
 
 <div class="entry">
-
+    <div ng-controller='streamCtrl'>
+        <div ng-repeat="post in posts">
+            {$post.fields.title$}
+        </div>
+    </div>
 </div>
+
+<script src="/static/js/js.cookie.js"></script>
 {% endblock %}

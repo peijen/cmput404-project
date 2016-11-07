@@ -41,7 +41,7 @@ class TestPosts(TestCase):
         Post.objects.create(title="Test345", author_id=self.author.id)
         Post.objects.create(title="Test567", author_id=self.author.id)
         response = c.get('/service/posts/')
-        list_data = json.loads(response.content.decode('string-escape').strip('"'))
+        list_data = json.loads(response.content)
         self.assertEqual(len(list_data), 3)
 
     def test_can_delete_posts_with_http(self):
@@ -58,8 +58,8 @@ class TestPosts(TestCase):
         post = Post.objects.create(title="Test123", author_id=self.author.id)
         response = c.get('/service/posts/' + str(post.id) + '/')
         self.assertEqual(response.status_code, 200)
-        server_post = json.loads(response.content.decode('string-escape').strip('"'))
-        self.assertEqual(str(server_post[0]['pk']), str(post.id))
+        server_post = json.loads(response.content)
+        self.assertEqual(str(server_post['id']), str(post.id))
 
     def test_can_update_post(self):
         post = Post.objects.create(title="Test123", author_id=self.author.id)
@@ -101,7 +101,7 @@ class TestPosts(TestCase):
         response = c.post('/service/friendrequest/', json.dumps({"author_id": str(author5.id)}), content_type="application/json")
 
         response = c.get('/service/friendrequest/')
-        content = json.loads(response.content.decode('string-escape').strip('"'))
+        content = json.loads(response.content)
         self.assertEqual(len(content), 4)
 
     def test_also_retrieves_friend_requests_where_is_requestee(self):

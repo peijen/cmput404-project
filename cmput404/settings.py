@@ -24,7 +24,7 @@ SECRET_KEY = '2vef^))cquipc56ma0j1^#2+2s63mi1rr@v)b55&o!_6k-1mmq'
 
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 
-STATIC_ROOT = os.path.join(PROJECT_ROOT, 'static')
+STATIC_ROOT = os.path.join(PROJECT_ROOT, 'staticfiles')
 STATIC_URL = '/static/'
 
 # Extra places for collectstatic to find static files.

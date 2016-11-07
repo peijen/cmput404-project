@@ -121,15 +121,19 @@ def posts_handler_generic(request):
 
         post['id'] = created.id
 
-        return HttpResponse(json.dumps(post))
+        dict_obj = model_to_dict(created)
+
+        serialized = json.dumps(dict_obj)
+        return HttpResponse(serialized, content_type="/application/json")
+
         #return create_json_response_with_location(data, new_post.id, request.path)
 
     elif (request.method == 'GET'):
         # TODO: this should return all the posts that a user can see, i.e their
         # stream, not all posts in db
         posts = Post.objects.all()
-        serialized_posts = serializers.serialize('json', posts)
-        return JsonResponse(serialized_posts, safe=False)
+        serialized = serializers.serialize("json", posts)
+        return HttpResponse(serialized, content_type='application/json')
 
     elif (request.method == 'PUT'):
         # TODO: VALIDATION... again
@@ -156,8 +160,9 @@ def posts_handler_specific(request, id):
         # validation to see if they can actually access this post based on its
         # permissions
         post = Post.objects.get(pk=id)
-        serialized_post = serializers.serialize('json', [post])
-        return JsonResponse(serialized_post, safe=False)
+        dict_obj = model_to_dict(post)
+        serialized = json.dumps(dict_obj)
+        return HttpResponse(serialized, content_type="/application/json")
 
     elif (request.method == 'DELETE'):
 
@@ -173,7 +178,7 @@ def posts_handler_specific(request, id):
         try:
             author = Author.objects.get(user_id=user.id)
             pass
-            
+
         except Exception as e:
 
             return HttpResponse(status=403)
@@ -345,7 +350,7 @@ def friendrequest_handler(request):
         friend_requests = FriendRequest.objects.filter((
             Q(requester_id=author.id) | Q(requestee_id=author.id)) & Q(accepted__isnull=True))
         serialized = serializers.serialize('json', friend_requests)
-        return JsonResponse(serialized, safe=False)
+        return HttpResponse(serialized, content_type="application/json")
 
     else:
         return HttpResponse(status=405)
