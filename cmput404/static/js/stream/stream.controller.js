@@ -21,7 +21,6 @@ app.controller("streamCtrl", ['$scope', '$http', 'Stream', function($scope, $htt
 			var news = document.getElementsByClassName("entry")[0];
 			var ret_text = JSON.parse(data.responseText);
 			var posts = ret_text["posts"];
-			console.log(posts)
 
 			function buttonAction() {
 				console.log("Button ID: " + this.id);

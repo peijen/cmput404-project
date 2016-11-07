@@ -17,8 +17,12 @@
 
 <div class="entry">
     <div ng-controller='streamCtrl'>
-        <div ng-repeat="post in posts">
-            {$post.fields.title$}
+        <div ng-repeat="post in posts" class="container post">
+            <h2>{$ post.fields.title $}</h2>
+            <h3>{$ post.fields.description $}</h3>
+            <p>{$ post.fields.content $}</p>
+            <p ng-repeat="comment in post.fields.comments">{$ comment.comment $}</p>
+            <p ng-if="post.fields.comments.length == 0">There are no comments for this post.</p>
         </div>
     </div>
 </div>
