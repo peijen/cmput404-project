@@ -30,17 +30,17 @@ app.service('Stream', ['$q', '$http', 'djangoUrl', function($q, $http, djangoUrl
 	this.commentOnPost = function(post_id, text) {
 		var deferred = $q.defer();
 
-        var comment_object = {
-            comment: text,
-            contentType: 'text/plain'
-        }
+		var comment_object = {
+			comment: text,
+			contentType: 'text/plain'
+		}
 
-        var url = djangoUrl.reverse('service:comment_handler', {id: post_id});
-        $http.post(url, comment_object).then(function(response) {
-            deferred.resolve(response.data);
-        }, function(response) {
-            deferred.resolve(response.status);
-        });
+		var url = djangoUrl.reverse('service:comment_handler', { id: post_id });
+		$http.post(url, comment_object).then(function(response) {
+			deferred.resolve(response.data);
+		}, function(response) {
+			deferred.resolve(response.status);
+		});
 
 		return deferred.promise;
 	}
