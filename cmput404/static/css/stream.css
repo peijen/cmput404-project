@@ -24,7 +24,6 @@
 }
 
 .comment-container {
-    max-width: 50%;
     display: flex;
     margin-bottom: 1em;
 }
