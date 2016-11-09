@@ -5,7 +5,6 @@ app.controller("streamCtrl", ['$scope', '$http', 'Stream', function($scope, $htt
 
 	Stream.getPosts().then(function(posts) {
 		$scope.posts = posts;
-        console.log(posts);
 		return;
 	}, function(status) {
 		// handle error statuses

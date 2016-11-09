@@ -63,7 +63,7 @@ class TestPosts(TestCase):
 
     def test_can_update_post(self):
         post = Post.objects.create(title="Test123", author_id=self.author.id)
-        response = c.put('/service/posts/' + str(post.id) +'/', {"content":"1"})
+        response = c.put('/service/posts/' + str(post.id) +'/', json.dumps({"content":"1"}))
         new_post = Post.objects.get(pk=post.id)
         self.assertEqual(new_post.content, "1")
 
