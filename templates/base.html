@@ -44,7 +44,6 @@
 							<li><a href="/logout">Logout</a></li>
 						</ul>
 					</li>
-
 				</ul>
 			</div>
 		</div>
@@ -56,11 +55,13 @@
 	<!-- we should switch to cdns here instead of serving it ourself, allows users to have a cached version of the scripts -->
 
 	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular.min.js"></script>
-	<script src="static/js/jquery.min.js"></script>
-	<script src="static/js/app.js"></script>
-	<script src="static/js/stream/stream.service.js"></script>
-	<script src="static/js/stream/stream.controller.js"></script>
-	<script src="static/js/bootstrap.min.js"></script>
+	<script src="{% static 'djng/js/django-angular.js' %}"></script>
+	<script src="{% static 'js/jquery.min.js' %}"></script>
+	<script src="{% static 'js/app.js' %}"></script>
+	<script src="{% static 'js/stream/stream.service.js' %}"></script>
+	<script src="{% static 'js/stream/stream.controller.js' %}"></script>
+	<script src="{% static 'js/filters/closeDateFilter.js' %}"></script>
+	<script src="{% static 'js/bootstrap.min.js' %}"></script>
 
 	{% block javascript %} {% endblock %}
 

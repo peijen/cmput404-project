@@ -52,9 +52,11 @@ INSTALLED_APPS = [
     'service',
     'website',
     'djng',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
+    'djng.middleware.AngularUrlMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',

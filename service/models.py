@@ -4,6 +4,7 @@ from django.db import models
 import uuid
 from django.contrib.auth.models import User
 from django.dispatch import receiver
+from django.core import serializers
 from django.db.models.signals import post_save
 
 '''
@@ -69,6 +70,9 @@ class Post(models.Model):
 
     def __setitem__(self, key, data):
         return setattr(self, key, data)
+
+    def __getitem__(self, key):
+        return getattr(self, key)
 
 class Comment(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4)

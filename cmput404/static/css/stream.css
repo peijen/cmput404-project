@@ -1,4 +1,35 @@
-.post {
+.post-container {
     background-color: rgb(236, 240, 241);
     margin-bottom:2em;
+}
+
+.post {
+    border-bottom: 4px solid #fff;
+    margin-bottom: 1em;
+    padding-bottom: 1em;
+}
+
+.post > h1 {
+    font-weight:bold;
+}
+
+.post > h3 {
+    margin-top: 0;
+}
+
+.post-content {
+    margin-top: 2em;
+}
+
+.post-footer {
+    padding-top: 1em;
+    color: #2C3E5080;
+}
+
+.no-padding {
+    padding: 0;
+}
+
+.comment {
+    resize: vertical;
 }

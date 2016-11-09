@@ -1,6 +1,8 @@
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
 from .models import Author, Comment, Post, FriendRequest
+from .serializers import PostSerializer, CommentSerializer
+from rest_framework.renderers import JSONRenderer
 from django.db.models import Q
 from django.forms.models import model_to_dict
 from django.core import serializers
@@ -132,12 +134,19 @@ def posts_handler_generic(request):
         # TODO: this should return all the posts that a user can see, i.e their
         # stream, not all posts in db
         posts = Post.objects.all()
-        serialized = serializers.serialize("json", posts)
-        return HttpResponse(serialized, content_type='application/json')
+        for post in posts:
+            comments = Comment.objects.filter(post_id=post['id'])
+            author = Author.objects.get(id=post['author_id'])
+            post['comments'] = comments
+            post['author'] = author
+
+        serializer = PostSerializer(posts, many=True)
+        json_data = JSONRenderer().render(serializer.data)
+        return HttpResponse(json_data, content_type='application/json')
 
     elif (request.method == 'PUT'):
         # TODO: VALIDATION... again
-        body = json.loads(request.body.strip("'<>() ").replace('\'', '\"'))
+        body = json.loads(request.body)
         new_post = create_post(body)
         data = model_to_dict(new_post)
         return create_json_response_with_location(data, new_post.id, request.path)
@@ -149,7 +158,7 @@ def posts_handler_specific(request, id):
         return HttpResponse(status=405)
 
     elif (request.method == 'PUT' or request.method == 'PATCH'):
-        body = json.loads(request.body.strip("'<>() ").replace('\'', '\"'))
+        body = json.loads(request.body)
         post = Post.objects.get(pk=id)
         for k, v in body.iteritems():
             post[k] = v
