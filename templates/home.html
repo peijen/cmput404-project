@@ -18,7 +18,10 @@
     <div ng-controller='streamCtrl'>
         <div ng-repeat="post in posts | orderBy: '-published'" class="container post-container no-padding">
             <div class="post">
-                <h1 class="no-margin-top-header">{$ post.title $}</h1>
+                <div class="post-header">
+                    <h1 class="post-title no-margin-top-header">{$ post.title $}</h1>
+                    <h1 class="post-date no-margin-top-header"> {$ post.published | date: 'MMM d' $}</h1>
+                </div>
                 <h3>{$ post.description $}</h3>
                 <p class="post-content">{$ post.content $}</p>
                 <p class="post-footer faded-text">Posted by {$ post.author.displayName $} {$ post.published | closeDateFilter $}</p>
