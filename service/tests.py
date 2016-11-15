@@ -95,6 +95,7 @@ class TestPosts(TestCase):
         author3 = Author.objects.create(user_id=user3.id)
         author4 = Author.objects.create(user_id=user4.id)
         author5 = Author.objects.create(user_id=user5.id)
+
         response = c.post('/service/friendrequest/', json.dumps({"author_id": str(author2.id)}), content_type="application/json")
         response = c.post('/service/friendrequest/', json.dumps({"author_id": str(author3.id)}), content_type="application/json")
         response = c.post('/service/friendrequest/', json.dumps({"author_id": str(author4.id)}), content_type="application/json")
@@ -105,5 +106,26 @@ class TestPosts(TestCase):
         self.assertEqual(len(content), 4)
 
     def test_also_retrieves_friend_requests_where_is_requestee(self):
-        #TODO: this test
+        user2 = User.objects.create_user(username='user2', email='test@test.com', password='test')
+        user3 = User.objects.create_user(username='user3', email='test@test.com', password='test')
+        user4 = User.objects.create_user(username='user4', email='test@test.com', password='test')
+        user5 = User.objects.create_user(username='user5', email='test@test.com', password='test')
+
+        author2 = Author.objects.create(user_id=user2.id)
+        author3 = Author.objects.create(user_id=user3.id)
+        author4 = Author.objects.create(user_id=user4.id)
+        author5 = Author.objects.create(user_id=user5.id)
+
+        fr1 = FriendRequest.objects.create(requester=author2, requestee=self.author)
+        fr2 = FriendRequest.objects.create(requester=author3, requestee=self.author)
+        fr3 = FriendRequest.objects.create(requester=author4, requestee=self.author)
+        fr4 = FriendRequest.objects.create(requester=author5, requestee=author2)
+
+        response = c.get('/service/friendrequest/')
+        content = json.loads(response.content)
+        self.assertEqual(len(content), 3)
+        return
+
+    def can_retrieve_list_of_friends(self):
+
         return

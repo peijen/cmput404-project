@@ -340,12 +340,17 @@ def author_handler(request, id):
 
 
 def friend_handler(request):
+    if (request.method == 'GET'):
+        author = Author.objects.get(user_id=request.user.id)
+        for friend in author.friends:
+            print friend
+
     return HttpResponse("My united states of")
 
 
 def friendrequest_handler(request):
     if (request.method == 'POST'):
-        body = json.loads(request.body.strip("'<>() ").replace('\'', '\"'))
+        body = json.loads(request.body)
         author = Author.objects.get(user_id=request.user.id)
         # TODO: validation, are they already friends?
         fr = FriendRequest.objects.create(
