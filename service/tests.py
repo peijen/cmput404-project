@@ -82,7 +82,7 @@ class TestPosts(TestCase):
     def test_can_make_friend_requests(self):
         user2 = User.objects.create_user(username='testuser2', email='bebebebe@test.com', password='user2')
         author2 = Author.objects.create(user_id=user2.id)
-        response = c.post('/service/friendrequest/', json.dumps({"author_id": str(author2.id)}), content_type="application/json")
+        response = c.post('/service/friendrequest/', json.dumps({"query":"friendrequest", "friend": {"id": str(author2.id)}, "author": {"id": str(self.author.id)}}), content_type="application/json")
         should_exist = FriendRequest.objects.get(pk=response['location'].replace('/service/friendrequest/', ''))
 
     def test_can_retrieve_pending_friend_requests(self):
@@ -96,10 +96,10 @@ class TestPosts(TestCase):
         author4 = Author.objects.create(user_id=user4.id)
         author5 = Author.objects.create(user_id=user5.id)
 
-        response = c.post('/service/friendrequest/', json.dumps({"author_id": str(author2.id)}), content_type="application/json")
-        response = c.post('/service/friendrequest/', json.dumps({"author_id": str(author3.id)}), content_type="application/json")
-        response = c.post('/service/friendrequest/', json.dumps({"author_id": str(author4.id)}), content_type="application/json")
-        response = c.post('/service/friendrequest/', json.dumps({"author_id": str(author5.id)}), content_type="application/json")
+        response = c.post('/service/friendrequest/', json.dumps({"query":"friendrequest", "friend": {"id": str(author2.id)}, "author": {"id": str(self.author.id)}}), content_type="application/json")
+        response = c.post('/service/friendrequest/', json.dumps({"query":"friendrequest", "friend": {"id": str(author3.id)}, "author": {"id": str(self.author.id)}}), content_type="application/json")
+        response = c.post('/service/friendrequest/', json.dumps({"query":"friendrequest", "friend": {"id": str(author4.id)}, "author": {"id": str(self.author.id)}}), content_type="application/json")
+        response = c.post('/service/friendrequest/', json.dumps({"query":"friendrequest", "friend": {"id": str(author5.id)}, "author": {"id": str(self.author.id)}}), content_type="application/json")
 
         response = c.get('/service/friendrequest/')
         content = json.loads(response.content)
@@ -124,8 +124,16 @@ class TestPosts(TestCase):
         response = c.get('/service/friendrequest/')
         content = json.loads(response.content)
         self.assertEqual(len(content), 3)
-        return
 
-    def can_retrieve_list_of_friends(self):
+    def test_can_accept_friend_request(self):
+        user2 = User.objects.create_user(username='user2', email='test@test.com', password='test')
+        author2 = Author.objects.create(user_id=user2.id)
+        fr1 = FriendRequest.objects.create(requester=author2, requestee=self.author)
+        response = c.post('/service/friendrequest/', json.dumps({"query":"friendrequest", "friend": {"id": str(author2.id)}, "author": {"id": str(self.author.id)}}), content_type="application/json")
 
-        return
+
+    def test_can_retrieve_list_of_friends(self):
+        user2 = User.objects.create_user(username='user2', email='test@test.com', password='test')
+        author2 = Author.objects.create(user_id=user2.id)
+        self.author.friends.add(author2)
+        response = c.get('/service/friends')

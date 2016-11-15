@@ -20,3 +20,11 @@ class PostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
         fields = ('id', 'title', 'source', 'origin', 'description', 'contentType', 'content', 'author', 'categories', 'published', 'visibility', 'comments', 'author')
+
+class FriendRequestSerializer(serializers.ModelSerializer):
+    author = AuthorSerializer(read_only=True)
+    friend = AuthorSerializer(read_only=True)
+
+    class Meta:
+        model = FriendRequest
+        fields = ('id', 'author', 'friend', 'accepted', 'created')
