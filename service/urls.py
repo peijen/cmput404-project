@@ -5,7 +5,6 @@ from . import views
 app_name = 'service'
 
 
-#TODO: handle routes so that even things that don't end with '/' route to same endpoints
 urlpatterns = [
     url(r'^$', views.index, name='index'),
     url(r'^posts/(?P<id>[^/]+)/comments/?$', views.posts_comments_handler, name='comment_handler'),

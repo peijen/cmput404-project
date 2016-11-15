@@ -4,6 +4,7 @@ from django.db import models
 import uuid
 from django.contrib.auth.models import User
 from django.dispatch import receiver
+from django.core import serializers
 from django.db.models.signals import post_save
 
 '''
@@ -38,18 +39,18 @@ class Author(models.Model):
     firstName = models.CharField(max_length=30, default="" , null=True, blank=True)
     lastName = models.CharField(max_length=30, default="", null=True, blank=True)
     bio = models.TextField(default="", null=True, blank=True)
-    friends = models.ForeignKey("self", null=True, blank=True)
+    friends = models.ManyToManyField("self", related_name="friends")
     def __str__(self):
         return self.displayName
 
-@receiver(post_save, sender=User)
-def create_author(sender, instance, created, **kwargs):
-    if created:
-        Author.objects.create(user=instance)
-
-@receiver(post_save, sender=User)
-def save_user_profile(sender, instance, **kwargs):
-    instance.author.save()
+# @receiver(post_save, sender=User)
+# def create_author(sender, instance, created, **kwargs):
+#     if created:
+#         Author.objects.create(user=instance)
+#
+# @receiver(post_save, sender=User)
+# def save_user_profile(sender, instance, **kwargs):
+#     instance.author.save()
 
 
 class Post(models.Model):
@@ -67,11 +68,11 @@ class Post(models.Model):
     def __str__(self):
         return self.title
 
-    def __getitem__(self, key):
-        return getattr(self, key)
-
     def __setitem__(self, key, data):
         return setattr(self, key, data)
+
+    def __getitem__(self, key):
+        return getattr(self, key)
 
 class Comment(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4)

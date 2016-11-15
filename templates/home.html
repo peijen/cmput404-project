@@ -2,148 +2,58 @@
 {% extends 'base.html' %}
 
 {% block content %}
- <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
- <script src="/static/js/js.cookie.js"></script>
+
 <div class="container">
 <div class="row">
 
 <div class="jumbotron">
-  <h1>Hello</h1>
-  <p>You are on your Dashboard</p>
-
+    <h1>Hello</h1>
+    <p>You are on your Dashboard</p>
 </div>
 </div>
 </div>
 <p style="text-align:center; font-size:larger" >Recent Posts</p>
 
 <div class="entry">
-
+    <div ng-controller='streamCtrl'>
+        <div ng-repeat="post in posts | orderBy: '-published'" class="container post-container no-padding">
+            <div class="post">
+                <div class="post-header">
+                    <h1 class="post-title no-margin-top-header">{$ post.title $}</h1>
+                    <h1 class="post-date no-margin-top-header"> {$ post.published | date: 'MMM d' $}</h1>
+                </div>
+                <h3>{$ post.description $}</h3>
+                <p class="post-content">{$ post.content $}</p>
+                <p class="post-footer faded-text">Posted by {$ post.author.displayName $} {$ post.published | closeDateFilter $}</p>
+            </div>
+            <div class="comment-section">
+                <h1 class="no-margin-top-header">Comments</h1>
+                <div class="form-group" ng-if="!post.comments.length">
+                    <p class="faded-text">There are no comments yet.</p>
+                </div>
+                <div class="form-group" ng-if="post.comments.length > 0">
+                    <div class="comment-container" ng-repeat="comment in post.comments">
+                        <div class="comment-display-picture">
+                            <div class="floating-letter">
+                                {$ (comment.author.displayName ? comment.author.displayName[0].toUpperCase() : "?") $}
+                            </div>
+                        </div>
+                        <div class="comment-text">
+                            <div><p>{$ comment.comment $}</p></div>
+                            <div><p class="faded-text">Posted by {$ comment.author.displayName $} {$ comment.published | closeDateFilter $}</p></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <textarea class="form-control comment" ng-model="post.comment" placeholder="Add a comment" ></textarea>
+                </div>
+                <div class="form-group col-sm-2">
+                    <button class="btn square-button btn-primary form-control" type='submit' ng-click="addComment(post, post.comment)">Comment</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
-<script type="text/javascript">
-$.ajax({
-    url: "/service/author/posts",
-    type: "GET",
-    dataType: 'json',
-    complete: function (data) {
-        var news = document.getElementsByClassName("entry")[0];
-        var ret_text = JSON.parse(data.responseText);
-        var posts = ret_text["posts"];
 
-        function buttonAction(){
-
-          var sendData = {}
-          var csrftoken = Cookies.get('csrftoken');
-          var sendId = this.id;
-          sendData['comment'] = document.getElementById(this.id).value;
-          document.getElementById(this.id).value = "";
-          sendData['contentType'] = "text/plain";
-
-          function csrfSafeMethod(method) {
-            // these HTTP methods do not require CSRF protection
-            return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-        }
-
-          $.ajaxSetup({
-            beforeSend: function(xhr, settings) {
-                if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
-                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
-                }
-            }
-           });
-
-          var send_url = '{% url 'service:comment_handler' "replacetext" %}';
-          send_url = send_url.replace('replacetext', this.id);
-
-          $.ajax({
-        cache: false,
-        url : send_url,
-        type: "POST",
-        dataType : "json",
-        context: this,
-        data : JSON.stringify(sendData),
-        success : function(callback){
-            //window.location.reload(false);
-            var p2 = document.createElement("p");
-            p2.innerHTML = "Comment: " + sendData["comment"];
-            $(p2).insertBefore("#"+sendId);
-
-
-        },
-        error : function(xhr, thrownError){
-            console.log(xhr.status);
-            console.log(thrownError)
-            $(this).html("Error!");
-        }
-    });
-
-        }
-
-        for (var i = 0; i < posts.length; ++i) {
-          var id = posts[i].id;
-          var mainc = document.createElement("div")
-          mainc.className="container";
-          mainc.setAttribute("name", id);
-          mainc.style.backgroundColor="#ecf0f1";
-          mainc.style.border = "thin solid grey";
-          news.appendChild(mainc)
-
-
-          var h2 = document.createElement("h2");
-          h2.innerHTML = posts[i].title;
-          mainc.appendChild(h2);
-          var h3 = document.createElement("h3");
-          h3.innerHTML = posts[i].description;
-          mainc.appendChild(h3);
-          var pcontent = document.createElement("p");
-          pcontent.innerHTML = posts[i].content;
-          mainc.appendChild(pcontent);
-
-
-          if (posts[i].count == 0) {
-            var p2 = document.createElement("p");
-            p2.fontSize = "xx-small";
-            p2.innerHTML = "There are no comments for this post"
-            mainc.appendChild(p2);
-          }
-          else{
-
-
-            var comments = posts[i].comments;
-
-
-
-            for (var k = 0; k < comments.length; ++k){
-              var p2 = document.createElement("p");
-              p2.innerHTML = "Comment: " + comments[k].comment;
-              mainc.appendChild(p2);
-            }
-
-
-          }
-
-          var text = document.createElement("input");
-          text.type = "text";
-          text.className = "textBox"
-          text.style.width="87%";
-          text.style.position = "relative";
-          text.style.bottom = "0";
-          text.id = id;
-          mainc.appendChild(text);
-          var btn = document.createElement("BUTTON");
-          btn.className="btn btn-default";
-          var t = document.createTextNode("Add a Comment");
-          btn.appendChild(t);
-          btn.style.position = "relative";
-          btn.style.bottom = "0";
-          mainc.appendChild(btn);
-          btn.id = id;
-          btn.onclick = buttonAction;
-
-
-
-        }
-    }
-});
-
-</script>
+<script src="/static/js/js.cookie.js"></script>
 {% endblock %}

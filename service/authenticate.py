@@ -38,7 +38,7 @@ def check_authenticate(request):
     # fix this later??? Just assume no : for now.
 
     logindata = logindata.split(":", 1)
-
+    
     # Authenticate with Django. Returns the user if correct, otherwise
     # returns None.
     try:
