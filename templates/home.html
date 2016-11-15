@@ -30,12 +30,12 @@ $.ajax({
         var posts = ret_text["posts"];
 
         function buttonAction(){
-          console.log("Button ID: " + this.id);
-          console.log("Input Text: " + document.getElementById(this.id).value);
 
           var sendData = {}
           var csrftoken = Cookies.get('csrftoken');
+          var sendId = this.id;
           sendData['comment'] = document.getElementById(this.id).value;
+          document.getElementById(this.id).value = "";
           sendData['contentType'] = "text/plain";
 
           function csrfSafeMethod(method) {
@@ -62,11 +62,11 @@ $.ajax({
         context: this,
         data : JSON.stringify(sendData),
         success : function(callback){
-            //Where $(this) => context == FORM
-            console.log(callback)
+            //window.location.reload(false);
+            var p2 = document.createElement("p");
+            p2.innerHTML = "Comment: " + sendData["comment"];
+            $(p2).insertBefore("#"+sendId);
 
-            //$(this).html("Received HTTP 200. Post should now be in database.");
-            window.location.reload(false);
 
         },
         error : function(xhr, thrownError){
@@ -79,13 +79,15 @@ $.ajax({
         }
 
         for (var i = 0; i < posts.length; ++i) {
+          var id = posts[i].id;
           var mainc = document.createElement("div")
           mainc.className="container";
+          mainc.setAttribute("name", id);
           mainc.style.backgroundColor="#ecf0f1";
           mainc.style.border = "thin solid grey";
           news.appendChild(mainc)
 
-          var id = posts[i].id;
+
           var h2 = document.createElement("h2");
           h2.innerHTML = posts[i].title;
           mainc.appendChild(h2);
@@ -96,7 +98,6 @@ $.ajax({
           pcontent.innerHTML = posts[i].content;
           mainc.appendChild(pcontent);
 
-          console.log(posts[i].id);
 
           if (posts[i].count == 0) {
             var p2 = document.createElement("p");
@@ -109,10 +110,8 @@ $.ajax({
 
             var comments = posts[i].comments;
 
-            console.log(comments);
 
 
-            //console.log(comments.length);
             for (var k = 0; k < comments.length; ++k){
               var p2 = document.createElement("p");
               p2.innerHTML = "Comment: " + comments[k].comment;
@@ -124,13 +123,18 @@ $.ajax({
 
           var text = document.createElement("input");
           text.type = "text";
+          text.className = "textBox"
           text.style.width="87%";
+          text.style.position = "relative";
+          text.style.bottom = "0";
           text.id = id;
           mainc.appendChild(text);
           var btn = document.createElement("BUTTON");
           btn.className="btn btn-default";
           var t = document.createTextNode("Add a Comment");
           btn.appendChild(t);
+          btn.style.position = "relative";
+          btn.style.bottom = "0";
           mainc.appendChild(btn);
           btn.id = id;
           btn.onclick = buttonAction;
