@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
 from .models import Author, Comment, Post, FriendRequest
-from .serializers import PostSerializer, CommentSerializer
+from .serializers import PostSerializer, AuthorSerializer
 from rest_framework.renderers import JSONRenderer
 from django.db.models import Q
 from django.forms.models import model_to_dict
@@ -343,10 +343,40 @@ def friend_handler(request):
     if (request.method == 'GET'):
         author = Author.objects.get(user_id=request.user.id)
         friends = author.friends.all()
+        serializer = AuthorSerializer(friends, many=True)
+        json_data = JSONRenderer().render(serializer.data)
+        return HttpResponse(json_data, content_type='application/json')
 
     return HttpResponse("My united states of")
 
+def friend_handler_specific(request, id):
+    if (request.method == 'DELETE'):
+        author = Author.objects.get(user_id=request.user.id)
 
+        try:
+            friend = Author.objects.get(id=id)
+            author.friends.remove(friend)
+            return HttpResponse(status=200)
+
+        except:
+            return HttpResponse(status=404)
+
+    if (request.method == 'GET'):
+        author = Author.objects.get(user_id=request.user.id)
+        friend = author.friends.filter(id=id)[0]
+
+        authors = [author.id]
+        if (friend):
+            authors.append(friend.id)
+        obj = {
+            'query': 'friends',
+            'authors': authors,
+        }
+
+        json_data = json.dumps(obj)
+        return HttpResponse(json_data, content_type='application/json')
+
+    return HttpResponse("")
 # {
 # 	"query":"friendrequest",
 # 	"author": {

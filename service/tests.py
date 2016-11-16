@@ -131,9 +131,32 @@ class TestPosts(TestCase):
         fr1 = FriendRequest.objects.create(requester=author2, requestee=self.author)
         response = c.post('/service/friendrequest/', json.dumps({"query":"friendrequest", "friend": {"id": str(author2.id)}, "author": {"id": str(self.author.id)}}), content_type="application/json")
 
+    def test_can_remove_friend(self):
+        user2 = User.objects.create_user(username='user2', email='test@test.com', password='test')
+        author2 = Author.objects.create(user_id=user2.id)
+        self.author.friends.add(author2)
 
-    def test_can_retrieve_list_of_friends(self):
+        response = c.delete('/service/friends/' + str(author2.id))
+        self.assertEqual(response.status_code, 200)
+
+        friends = self.author.friends.all()
+        self.assertEqual(len(friends), 0)
+
+    def test_added_to_friends_list(self):
         user2 = User.objects.create_user(username='user2', email='test@test.com', password='test')
         author2 = Author.objects.create(user_id=user2.id)
         self.author.friends.add(author2)
         response = c.get('/service/friends')
+        friends = json.loads(response.content)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(friends), 1)
+
+    def test_can_query_if_friends(self):
+        user2 = User.objects.create_user(username='user2', email='test@test.com', password='test')
+        author2 = Author.objects.create(user_id=user2.id)
+        self.author.friends.add(author2)
+        author2.friends.add(self.author)
+
+        response = c.get('/service/friends/' + str(author2.id))
+        jsonres = json.loads(response.content)
+        self.assertEqual(len(jsonres['authors']), 2)
