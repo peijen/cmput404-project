@@ -3,3 +3,4 @@ gunicorn==19.6.0
 whitenoise==3.2.2
 django-angular==0.8.4
 djangorestframework==3.5.3
+six==1.10.0
