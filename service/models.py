@@ -39,7 +39,7 @@ class Author(models.Model):
     firstName = models.CharField(max_length=30, default="" , null=True, blank=True)
     lastName = models.CharField(max_length=30, default="", null=True, blank=True)
     bio = models.TextField(default="", null=True, blank=True)
-    friends = models.ManyToManyField("self", related_name="friends")
+    friends = models.ManyToManyField("self", related_name="friends", blank=True)
     def __str__(self):
         return self.displayName
 
