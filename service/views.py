@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
 from .models import Author, Comment, Post, FriendRequest
-from .serializers import PostSerializer, CommentSerializer
+from .serializers import PostSerializer, AuthorSerializer
 from rest_framework.renderers import JSONRenderer
 from django.db.models import Q
 from django.forms.models import model_to_dict
@@ -342,21 +342,101 @@ def author_handler(request, id):
 def friend_handler(request):
     if (request.method == 'GET'):
         author = Author.objects.get(user_id=request.user.id)
-        for friend in author.friends:
-            print friend
+        friends = author.friends.all()
+        serializer = AuthorSerializer(friends, many=True)
+        json_data = JSONRenderer().render(serializer.data)
+        return HttpResponse(json_data, content_type='application/json')
 
     return HttpResponse("My united states of")
 
+def friend_handler_specific(request, id):
+    if (request.method == 'DELETE'):
+        author = Author.objects.get(user_id=request.user.id)
+
+        try:
+            friend = Author.objects.get(id=id)
+            author.friends.remove(friend)
+            return HttpResponse(status=200)
+
+        except:
+            return HttpResponse(status=404)
+
+    if (request.method == 'GET'):
+        author = Author.objects.get(user_id=request.user.id)
+        friend = author.friends.filter(id=id)[0]
+
+        authors = [author.id]
+        if (friend):
+            authors.append(friend.id)
+        obj = {
+            'query': 'friends',
+            'authors': authors,
+        }
+
+        json_data = json.dumps(obj)
+        return HttpResponse(json_data, content_type='application/json')
+
+    return HttpResponse("")
+# {
+# 	"query":"friendrequest",
+# 	"author": {
+# 	    # UUID
+# 		"id":"de305d54-75b4-431b-adb2-eb6b9e546013",
+# 		"host":"http://127.0.0.1:5454/",
+# 		"displayName":"Greg Johnson"
+# 	},
+# 	"friend": {
+# 	    # UUID
+# 		"id":"de305d54-75b4-431b-adb2-eb6b9e637281",
+# 		"host":"http://127.0.0.1:5454/",
+# 		"displayName":"Lara Croft",
+# 		"url":"http://127.0.0.1:5454/author/9de17f29c12e8f97bcbbd34cc908f1baba40658e"
+# 	}
+# }
+
+# return friend request if exists, otherwise false
+def friend_request_exists(requester_id, requestee_id):
+    try:
+        fr = FriendRequests.objects.get(requester_id=requester_id, requestee_id=requestee_id)
+        return fr
+
+    except:
+        return False
 
 def friendrequest_handler(request):
     if (request.method == 'POST'):
-        body = json.loads(request.body)
-        author = Author.objects.get(user_id=request.user.id)
         # TODO: validation, are they already friends?
-        fr = FriendRequest.objects.create(
-            requester_id=author.id, requestee_id=body['author_id'])
-        data = model_to_dict(fr)
-        return create_json_response_with_location(data, fr.id, request.path)
+        body = json.loads(request.body)
+
+        # try to get an existing reverse friend request (where the requester is the requestee)
+        try:
+            bidirectional = FriendRequest.objects.get(requestee_id=body['author']['id'], requester_id=body['friend']['id'])
+
+            # exists a friend request from the other user, even if it was previously rejected
+            # make users friends
+
+            friend1 = Author.objects.get(id=bidirectional.requester.id)
+            friend2 = Author.objects.get(id=bidirectional.requestee.id)
+
+            friend1.friends.add(friend2)
+            friend2.friends.add(friend1)
+            bidirectional.delete()
+
+            return HttpResponse(status=201)
+
+
+        except:
+            # only create the friend request if it doesn't already exist and wasn't rejected
+            fr = friend_request_exists(body['author']['id'], body['friend']['id'])
+
+            if not fr:
+                fr = FriendRequest.objects.create(requester_id=body['author']['id'], requestee_id=body['friend']['id'])
+                data = model_to_dict(fr)
+                return create_json_response_with_location(data, fr.id, request.path)
+
+            else:
+                # friend request exists, either pending or rejected
+                return HttpResponse(status=409)
 
     # return users list of pending requests
     elif (request.method == 'GET'):
