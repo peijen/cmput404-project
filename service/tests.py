@@ -151,7 +151,7 @@ class TestPosts(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(friends), 1)
 
-    def test_can_query_if_friends(self):
+    def test_can_query_if_friends_current_user(self):
         user2 = User.objects.create_user(username='user2', email='test@test.com', password='test')
         author2 = Author.objects.create(user_id=user2.id)
         self.author.friends.add(author2)
@@ -160,3 +160,45 @@ class TestPosts(TestCase):
         response = c.get('/service/friends/' + str(author2.id))
         jsonres = json.loads(response.content)
         self.assertEqual(len(jsonres['authors']), 2)
+
+    def test_can_query_if_two_other_users_friends_false(self):
+        user2 = User.objects.create_user(username='user2', email='test@test.com', password='test')
+        author2 = Author.objects.create(user_id=user2.id)
+        response = c.get('/service/friends/' + str(author2.id) + '/' + str(self.author.id))
+        jsonres = json.loads(response.content)
+        self.assertEqual(jsonres['friends'], False)
+
+    def test_can_query_if_two_other_users_friends_true(self):
+        user2 = User.objects.create_user(username='user2', email='test@test.com', password='test')
+        author2 = Author.objects.create(user_id=user2.id)
+
+        self.author.friends.add(author2)
+        author2.friends.add(self.author)
+
+        response = c.get('/service/friends/' + str(author2.id) + '/' + str(self.author.id))
+        jsonres = json.loads(response.content)
+        self.assertEqual(jsonres['friends'], True)
+
+        return
+
+    def test_can_query_if_list_of_users_friends(self):
+        user2 = User.objects.create_user(username='user2', email='test@test.com', password='test')
+        user3 = User.objects.create_user(username='user3', email='test@test.com', password='test')
+        user4 = User.objects.create_user(username='user4', email='test@test.com', password='test')
+        user5 = User.objects.create_user(username='user5', email='test@test.com', password='test')
+
+        author2 = Author.objects.create(user_id=user2.id)
+        author3 = Author.objects.create(user_id=user3.id)
+        author4 = Author.objects.create(user_id=user4.id)
+        author5 = Author.objects.create(user_id=user5.id)
+
+        self.author.friends.add(author2, author3, author4)
+
+        data = {
+            "query": "friends",
+            "author": str(self.author.id),
+            "authors": [str(author2.id), str(author3.id), str(author4.id), str(author5.id)]
+        }
+        response = c.post('/service/friends/' + str(self.author.id), data=json.dumps(data), content_type="application/json")
+        jsonres = json.loads(response.content)
+        self.assertEqual(len(jsonres['authors']), 3)

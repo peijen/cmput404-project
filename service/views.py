@@ -361,22 +361,72 @@ def friend_handler_specific(request, id):
         except:
             return HttpResponse(status=404)
 
-    if (request.method == 'GET'):
-        author = Author.objects.get(user_id=request.user.id)
-        friend = author.friends.filter(id=id)[0]
+    elif (request.method == 'GET'):
 
-        authors = [author.id]
-        if (friend):
-            authors.append(friend.id)
-        obj = {
-            'query': 'friends',
-            'authors': authors,
-        }
+        try :
+            author = Author.objects.get(user_id=request.user.id)
+            friend = author.friends.filter(id=id)[0]
 
-        json_data = json.dumps(obj)
-        return HttpResponse(json_data, content_type='application/json')
+            authors = [author.id]
+            if (friend):
+                authors.append(friend.id)
+            obj = {
+                'query': 'friends',
+                'authors': authors,
+            }
+
+            json_data = json.dumps(obj)
+            return HttpResponse(json_data, content_type='application/json')
+
+        except:
+            return HttpResponse(status=404)
+
+    elif (request.method == 'POST'):
+        try:
+            author = Author.objects.get(id=id)
+            json_body = json.loads(request.body)
+            friends = map(lambda x:x.id, author.friends.filter(pk__in=json_body['authors']))
+            
+            obj = {
+                'query': 'friends',
+                'author': str(id),
+                'authors': friends,
+            }
+
+            json_data = json.dumps(obj)
+            return HttpResponse(json_data, content_type='application/json')
+
+        except:
+            return HttpResponse(status=404)
 
     return HttpResponse("")
+
+def friend_query_handler(request, author1_id, author2_id):
+    if (request.method == 'GET'):
+        try:
+            author1 = Author.objects.get(id=author1_id)
+            author2 = Author.objects.get(id=author2_id)
+
+            friends1 = author1.friends.filter(id=author2_id)
+            friends2 = author2.friends.filter(id=author1_id)
+
+            authors = [author1.id, author2.id]
+
+            obj = {
+                'query': 'friends',
+                'authors': authors,
+            }
+
+            obj['friends'] = len(friends1) > 0 and len(friends2) > 0
+            json_data = json.dumps(obj)
+
+            return HttpResponse(json_data, content_type='application/json')
+
+
+        except:
+            # authors not found
+            return HttpResponse(status=404)
+
 # {
 # 	"query":"friendrequest",
 # 	"author": {
