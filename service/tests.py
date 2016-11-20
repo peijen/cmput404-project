@@ -10,7 +10,7 @@ c = Client()
 class TestPosts(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(username='user1', email='test@test.com', password='user1')
-        self.author = Author.objects.create(user_id=self.user.id)
+        self.author = Author.objects.get(user_id=self.user.id)
         c.login(username='user1', password='user1')
 
     def tearDown(self):
@@ -81,7 +81,7 @@ class TestPosts(TestCase):
 
     def test_can_make_friend_requests(self):
         user2 = User.objects.create_user(username='testuser2', email='bebebebe@test.com', password='user2')
-        author2 = Author.objects.create(user_id=user2.id)
+        author2 = Author.objects.get(user_id=user2.id)
         response = c.post('/service/friendrequest/', json.dumps({"query":"friendrequest", "friend": {"id": str(author2.id)}, "author": {"id": str(self.author.id)}}), content_type="application/json")
         should_exist = FriendRequest.objects.get(pk=response['location'].replace('/service/friendrequest/', ''))
 
@@ -91,10 +91,10 @@ class TestPosts(TestCase):
         user4 = User.objects.create_user(username='user4', email='test@test.com', password='test')
         user5 = User.objects.create_user(username='user5', email='test@test.com', password='test')
 
-        author2 = Author.objects.create(user_id=user2.id)
-        author3 = Author.objects.create(user_id=user3.id)
-        author4 = Author.objects.create(user_id=user4.id)
-        author5 = Author.objects.create(user_id=user5.id)
+        author2 = Author.objects.get(user_id=user2.id)
+        author3 = Author.objects.get(user_id=user3.id)
+        author4 = Author.objects.get(user_id=user4.id)
+        author5 = Author.objects.get(user_id=user5.id)
 
         response = c.post('/service/friendrequest/', json.dumps({"query":"friendrequest", "friend": {"id": str(author2.id)}, "author": {"id": str(self.author.id)}}), content_type="application/json")
         response = c.post('/service/friendrequest/', json.dumps({"query":"friendrequest", "friend": {"id": str(author3.id)}, "author": {"id": str(self.author.id)}}), content_type="application/json")
@@ -111,10 +111,10 @@ class TestPosts(TestCase):
         user4 = User.objects.create_user(username='user4', email='test@test.com', password='test')
         user5 = User.objects.create_user(username='user5', email='test@test.com', password='test')
 
-        author2 = Author.objects.create(user_id=user2.id)
-        author3 = Author.objects.create(user_id=user3.id)
-        author4 = Author.objects.create(user_id=user4.id)
-        author5 = Author.objects.create(user_id=user5.id)
+        author2 = Author.objects.get(user_id=user2.id)
+        author3 = Author.objects.get(user_id=user3.id)
+        author4 = Author.objects.get(user_id=user4.id)
+        author5 = Author.objects.get(user_id=user5.id)
 
         fr1 = FriendRequest.objects.create(requester=author2, requestee=self.author)
         fr2 = FriendRequest.objects.create(requester=author3, requestee=self.author)
@@ -127,13 +127,13 @@ class TestPosts(TestCase):
 
     def test_can_accept_friend_request(self):
         user2 = User.objects.create_user(username='user2', email='test@test.com', password='test')
-        author2 = Author.objects.create(user_id=user2.id)
+        author2 = Author.objects.get(user_id=user2.id)
         fr1 = FriendRequest.objects.create(requester=author2, requestee=self.author)
         response = c.post('/service/friendrequest/', json.dumps({"query":"friendrequest", "friend": {"id": str(author2.id)}, "author": {"id": str(self.author.id)}}), content_type="application/json")
 
     def test_can_remove_friend(self):
         user2 = User.objects.create_user(username='user2', email='test@test.com', password='test')
-        author2 = Author.objects.create(user_id=user2.id)
+        author2 = Author.objects.get(user_id=user2.id)
         self.author.friends.add(author2)
 
         response = c.delete('/service/friends/' + str(author2.id))
@@ -144,7 +144,7 @@ class TestPosts(TestCase):
 
     def test_added_to_friends_list(self):
         user2 = User.objects.create_user(username='user2', email='test@test.com', password='test')
-        author2 = Author.objects.create(user_id=user2.id)
+        author2 = Author.objects.get(user_id=user2.id)
         self.author.friends.add(author2)
         response = c.get('/service/friends')
         friends = json.loads(response.content)
@@ -153,7 +153,7 @@ class TestPosts(TestCase):
 
     def test_can_query_if_friends_current_user(self):
         user2 = User.objects.create_user(username='user2', email='test@test.com', password='test')
-        author2 = Author.objects.create(user_id=user2.id)
+        author2 = Author.objects.get(user_id=user2.id)
         self.author.friends.add(author2)
         author2.friends.add(self.author)
 
@@ -163,14 +163,14 @@ class TestPosts(TestCase):
 
     def test_can_query_if_two_other_users_friends_false(self):
         user2 = User.objects.create_user(username='user2', email='test@test.com', password='test')
-        author2 = Author.objects.create(user_id=user2.id)
+        author2 = Author.objects.get(user_id=user2.id)
         response = c.get('/service/friends/' + str(author2.id) + '/' + str(self.author.id))
         jsonres = json.loads(response.content)
         self.assertEqual(jsonres['friends'], False)
 
     def test_can_query_if_two_other_users_friends_true(self):
         user2 = User.objects.create_user(username='user2', email='test@test.com', password='test')
-        author2 = Author.objects.create(user_id=user2.id)
+        author2 = Author.objects.get(user_id=user2.id)
 
         self.author.friends.add(author2)
         author2.friends.add(self.author)
@@ -187,10 +187,10 @@ class TestPosts(TestCase):
         user4 = User.objects.create_user(username='user4', email='test@test.com', password='test')
         user5 = User.objects.create_user(username='user5', email='test@test.com', password='test')
 
-        author2 = Author.objects.create(user_id=user2.id)
-        author3 = Author.objects.create(user_id=user3.id)
-        author4 = Author.objects.create(user_id=user4.id)
-        author5 = Author.objects.create(user_id=user5.id)
+        author2 = Author.objects.get(user_id=user2.id)
+        author3 = Author.objects.get(user_id=user3.id)
+        author4 = Author.objects.get(user_id=user4.id)
+        author5 = Author.objects.get(user_id=user5.id)
 
         self.author.friends.add(author2, author3, author4)
 

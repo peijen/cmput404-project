@@ -43,14 +43,14 @@ class Author(models.Model):
     def __str__(self):
         return self.displayName
 
-# @receiver(post_save, sender=User)
-# def create_author(sender, instance, created, **kwargs):
-#     if created:
-#         Author.objects.create(user=instance)
-#
-# @receiver(post_save, sender=User)
-# def save_user_profile(sender, instance, **kwargs):
-#     instance.author.save()
+@receiver(post_save, sender=User)
+def create_author(sender, instance, created, **kwargs):
+    if created:
+        Author.objects.create(user=instance)
+
+@receiver(post_save, sender=User)
+def save_user_profile(sender, instance, **kwargs):
+    instance.author.save()
 
 
 class Post(models.Model):
