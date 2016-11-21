@@ -90,3 +90,7 @@ class FriendRequest(models.Model):
     requestee = models.ForeignKey(Author, related_name="requestee") #received the friend request
     accepted = models.NullBooleanField(blank=True, null=True, default=None) #was the friend request accepted or rejected? if null means request is pending
     created = models.DateTimeField(auto_now=True) #when was the request created
+
+class Nodes(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
+    url = models.TextField()
