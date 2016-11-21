@@ -7,7 +7,8 @@ app.service('Stream', ['$q', '$http', 'djangoUrl', function($q, $http, djangoUrl
 		// "a GET without a postfixed “postid” should return a list of all “PUBLIC” visibility posts on your node"
 
 		$http.get('/service/posts').then(function(response) {
-			deferred.resolve(response.data);
+			posts = response.data ? response.data.posts : []
+			deferred.resolve(posts);
 		}, function(response) {
 			deferred.reject(response.status);
 		});
