@@ -94,3 +94,5 @@ class FriendRequest(models.Model):
 class Nodes(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4)
     url = models.TextField()
+    def __str__(self):
+        return self.url
