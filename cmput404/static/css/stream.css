@@ -1,3 +1,7 @@
+a.hover, a.focus {
+    color: #189279;
+}
+
 .post-container {
     background-color: rgb(236, 240, 241);
     margin-bottom:2em;

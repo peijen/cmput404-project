@@ -202,3 +202,9 @@ class TestPosts(TestCase):
         response = c.post('/service/friends/' + str(self.author.id), data=json.dumps(data), content_type="application/json")
         jsonres = json.loads(response.content)
         self.assertEqual(len(jsonres['authors']), 3)
+
+    def test_can_retrieve_own_profile(self):
+
+        response = c.get('/service/me')
+        jsonres = json.loads(response.content)
+        self.assertEqual(jsonres['username'], 'user1')

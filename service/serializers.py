@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import Author, Comment, Post, FriendRequest, VISIBILITY_CHOICES
+from django.contrib.auth.models import User
 
 class AuthorSerializer(serializers.ModelSerializer):
     class Meta:
@@ -28,3 +29,10 @@ class FriendRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = FriendRequest
         fields = ('id', 'author', 'friend', 'accepted', 'created')
+
+class UserSerializer(serializers.ModelSerializer):
+    author = AuthorSerializer(read_only=True)
+
+    class Meta:
+        model = User
+        fields = ('id', 'username', 'email', 'last_login', 'author', 'date_joined', 'is_active')

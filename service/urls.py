@@ -16,4 +16,5 @@ urlpatterns = [
     url(r'^friends/(?P<id>[^/]+)/?$', views.friend_handler_specific, name='friend_handler_specific'),
     url(r'^friends/?$', views.friend_handler, name='friend_handler'),
     url(r'^friendrequest/?$', views.friendrequest_handler, name='friendrequest_handler'),
+    url(r'^me/?$', views.get_me, name='me'), #endpoint for angular
 ]

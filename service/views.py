@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
 from .models import Author, Comment, Post, FriendRequest
-from .serializers import PostSerializer, AuthorSerializer
+from .serializers import PostSerializer, AuthorSerializer, UserSerializer
 from rest_framework.renderers import JSONRenderer
 from django.db.models import Q
 from django.forms.models import model_to_dict
@@ -386,7 +386,7 @@ def friend_handler_specific(request, id):
             author = Author.objects.get(id=id)
             json_body = json.loads(request.body)
             friends = map(lambda x:x.id, author.friends.filter(pk__in=json_body['authors']))
-            
+
             obj = {
                 'query': 'friends',
                 'author': str(id),
@@ -498,3 +498,13 @@ def friendrequest_handler(request):
 
     else:
         return HttpResponse(status=405)
+
+
+def get_me(request):
+
+    if not request.user:
+        return HttpResponse(status=401)
+        
+    serializer = UserSerializer(request.user)
+    json_data = JSONRenderer().render(serializer.data)
+    return HttpResponse(json_data, content_type='application/json')
