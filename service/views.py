@@ -1,13 +1,18 @@
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
-from .models import Author, Comment, Post, FriendRequest
-from .serializers import PostSerializer, AuthorSerializer, UserSerializer
-from rest_framework.renderers import JSONRenderer
 from django.db.models import Q
 from django.forms.models import model_to_dict
 from django.core import serializers
-from .authenticate import check_authenticate
+from rest_framework.pagination import PageNumberPagination
 from django.contrib.sites.models import Site
+
+from .models import Author, Comment, Post, FriendRequest
+from .serializers import PostSerializer, AuthorSerializer, UserSerializer, PostPagination
+from .authenticate import check_authenticate
+
+from rest_framework.decorators import api_view
+from rest_framework.renderers import JSONRenderer
+
 import json
 
 # Create your views here.
@@ -93,7 +98,7 @@ def posts_comments_handler(request, id):
         return HttpResponse('')
 
 
-
+@api_view(['GET', 'POST', 'PUT'])
 def posts_handler_generic(request):
 
     if (request.method == 'POST'):
@@ -108,25 +113,23 @@ def posts_handler_generic(request):
 
         post = json.loads(request.body)
 
-        #post = {}
-        #post["title"] = "hello"
-        #post["description"] = "desc"
-        #post["content"] = "test"
-        #post["categories"] = "cat"
-        #post["visibility"] = "ALL"
-
+        #TODO: whatever this is supposed to be needs to be fixed
         post['source'] = "http://127.0.0.1:8000/posts/fixthislater"
         post['origin'] = "http://127.0.0.1:8000/posts/originfixthislater"
         post['author_id'] = author.id
 
         created = create_post(post)
+        created.comments = []
 
-        post['id'] = created.id
+        serializer = PostSerializer(created)
 
-        dict_obj = model_to_dict(created)
+        json_data = JSONRenderer().render(serializer.data)
 
-        serialized = json.dumps(dict_obj)
-        return HttpResponse(serialized, content_type="/application/json")
+        response = HttpResponse(json_data, content_type='application/json')
+        response.status = 201
+        response['Location'] = request.path + str(created.id)
+
+        return response
 
         #return create_json_response_with_location(data, new_post.id, request.path)
 
@@ -134,15 +137,21 @@ def posts_handler_generic(request):
         # TODO: this should return all the posts that a user can see, i.e their
         # stream, not all posts in db
         posts = Post.objects.all()
-        for post in posts:
+        size = request.GET.get('size', '25')
+
+        paginator = PostPagination()
+        paginator.page_size = size
+        posts = Post.objects.all()
+        result_posts = paginator.paginate_queryset(posts, request)
+
+        for post in result_posts:
             comments = Comment.objects.filter(post_id=post['id'])
             author = Author.objects.get(id=post['author_id'])
             post['comments'] = comments
             post['author'] = author
 
-        serializer = PostSerializer(posts, many=True)
-        json_data = JSONRenderer().render(serializer.data)
-        return HttpResponse(json_data, content_type='application/json')
+        serializer = PostSerializer(result_posts, many=True)
+        return paginator.get_paginated_response(serializer.data)
 
     elif (request.method == 'PUT'):
         # TODO: VALIDATION... again
@@ -169,9 +178,12 @@ def posts_handler_specific(request, id):
         # validation to see if they can actually access this post based on its
         # permissions
         post = Post.objects.get(pk=id)
-        dict_obj = model_to_dict(post)
-        serialized = json.dumps(dict_obj)
-        return HttpResponse(serialized, content_type="/application/json")
+        post['comments'] = Comment.objects.filter(post_id=post.id)
+        post['author'] = Author.objects.get(id=post.author_id)
+        serializer = PostSerializer(post)
+        json_data = JSONRenderer().render(serializer.data)
+
+        return HttpResponse(json_data, content_type='application/json')
 
     elif (request.method == 'DELETE'):
 
@@ -504,7 +516,7 @@ def get_me(request):
 
     if not request.user:
         return HttpResponse(status=401)
-        
+
     serializer = UserSerializer(request.user)
     json_data = JSONRenderer().render(serializer.data)
     return HttpResponse(json_data, content_type='application/json')

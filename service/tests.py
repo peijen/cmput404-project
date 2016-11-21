@@ -34,6 +34,14 @@ class TestPosts(TestCase):
             "visibility": "0"
         }
         response = c.post('/service/posts/', data=json.dumps(data), content_type="application/json")
+        server_post = json.loads(response.content)
+        # make sure that certain important keys are in the json response
+        self.assertIn('author', server_post)
+        self.assertIn('comments', server_post)
+        self.assertIn('content', server_post)
+        self.assertIn('title', server_post)
+        self.assertIn('description', server_post)
+
         self.assertEqual(response.status_code, 200)
 
     def test_can_retrieve_posts_with_http(self):
@@ -41,7 +49,8 @@ class TestPosts(TestCase):
         Post.objects.create(title="Test345", author_id=self.author.id)
         Post.objects.create(title="Test567", author_id=self.author.id)
         response = c.get('/service/posts/')
-        list_data = json.loads(response.content)
+        jsonres = json.loads(response.content)
+        list_data = jsonres['posts']
         self.assertEqual(len(list_data), 3)
 
     def test_can_delete_posts_with_http(self):
@@ -60,6 +69,11 @@ class TestPosts(TestCase):
         self.assertEqual(response.status_code, 200)
         server_post = json.loads(response.content)
         self.assertEqual(str(server_post['id']), str(post.id))
+        self.assertIn('author', server_post)
+        self.assertIn('comments', server_post)
+        self.assertIn('content', server_post)
+        self.assertIn('title', server_post)
+        self.assertIn('description', server_post)
 
     def test_can_update_post(self):
         post = Post.objects.create(title="Test123", author_id=self.author.id)
