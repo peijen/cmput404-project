@@ -31,7 +31,7 @@ VISIBILITY_CHOICES = (
 class Author(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
     id = models.UUIDField(primary_key=True, default=uuid.uuid4)
-    host = models.CharField(max_length=500, null=True, blank=True)
+    host = models.CharField(max_length=500, null=True, blank=True, default='https://cmput404t02.herokuapp.com/service/')
     displayName = models.CharField(max_length=50, null=True, blank=True, default='')
     url = models.CharField(max_length=500, null=True, blank=True)
     github = models.CharField(max_length=500, null=True, blank=True)
