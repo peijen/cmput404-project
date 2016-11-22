@@ -32,7 +32,7 @@
                     <p class="faded-text">There are no comments yet.</p>
                 </div>
                 <div class="form-group" ng-if="post.comments.length > 0">
-                    <div class="comment-container" ng-repeat="comment in post.comments">
+                    <div class="comment-container" ng-repeat="comment in post.comments | orderBy: '+published'">
                         <a ng-href='./author/{$comment.author.id$}' class="btn btn-primary profile-picture-button">{$ (comment.author.displayName ? comment.author.displayName[0].toUpperCase() : "?") $}</a>
                         <div class="comment-text">
                             <div><p>{$ comment.comment $}</p></div>
