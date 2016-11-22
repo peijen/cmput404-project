@@ -152,6 +152,9 @@ def posts_handler_generic(request):
             author = Author.objects.get(id=post['author_id'])
             post['comments'] = comments
             post['author'] = author
+	    post['count'] = comments.count()		
+	    post['size'] = size
+	    post['next'] = post.origin + '/posts/' + str(post.id) + '/comments'
 
         serializer = PostSerializer(result_posts, many=True)
         return paginator.get_paginated_response(serializer.data, size)
@@ -248,6 +251,9 @@ def author_posts_handler(request):
             author = Author.objects.get(id=post['author_id'])
             post['comments'] = comments
             post['author'] = author
+	    post['count'] = comments.count()		
+	    post['size'] = size
+	    post['next'] = post.origin + '/posts/' + str(post.id) + '/comments'
 
         serializer = PostSerializer(result_posts, many=True)
         return paginator.get_paginated_response(serializer.data, size)
