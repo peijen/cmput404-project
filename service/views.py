@@ -247,7 +247,7 @@ def author_posts_handler(request):
         result_posts = paginator.paginate_queryset(posts, request)
 
         for post in result_posts:
-            comments = Comment.objects.filter(post_id=post['id'])[:5]
+            comments = Comment.objects.filter(post_id=post['id']).order_by('-published')[:5]
             author = Author.objects.get(id=post['author_id'])
             post['comments'] = comments
             post['author'] = author
