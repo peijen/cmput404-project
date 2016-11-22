@@ -6,7 +6,7 @@ from django.core import serializers
 from rest_framework.pagination import PageNumberPagination
 from django.contrib.sites.models import Site
 
-from .models import Author, Comment, Post, FriendRequest
+from .models import Author, Comment, Post, FriendRequest, Nodes
 from .serializers import PostSerializer, AuthorSerializer, UserSerializer, PostPagination
 from .authenticate import check_authenticate
 
@@ -14,6 +14,10 @@ from rest_framework.decorators import api_view
 from rest_framework.renderers import JSONRenderer
 
 import json
+import requests
+import datetime
+from operator import itemgetter
+import dateutil.parser
 
 # Create your views here.
 
@@ -25,6 +29,22 @@ def index(request):
         return HttpResponse("Not authenticated")
     else:
         return HttpResponse("Authenticated as user" + authenticated.username)
+
+def catch_em_all(request):
+
+    nodes = Nodes.objects.all()
+
+    posts = []
+
+    for node in nodes:
+        stuff = requests.get(node.url + "posts/")
+
+        content = json.loads(stuff.content)
+
+        for post in content['posts']:
+            posts.append(post)
+
+    return posts
 
 
 def create_post(post):
@@ -136,94 +156,6 @@ def posts_handler_generic(request):
     elif (request.method == 'GET'):
         # TODO: this should return all the posts that a user can see, i.e their
         # stream, not all posts in db
-        posts = Post.objects.all()
-        size = request.GET.get('size', '25')
-
-        paginator = PostPagination()
-        paginator.page_size = size
-        posts = Post.objects.all()
-        result_posts = paginator.paginate_queryset(posts, request)
-
-        for post in result_posts:
-            comments = Comment.objects.filter(post_id=post['id'])
-            author = Author.objects.get(id=post['author_id'])
-            post['comments'] = comments
-            post['author'] = author
-
-        serializer = PostSerializer(result_posts, many=True)
-        return paginator.get_paginated_response(serializer.data)
-
-    elif (request.method == 'PUT'):
-        # TODO: VALIDATION... again
-        body = json.loads(request.body)
-        new_post = create_post(body)
-        data = model_to_dict(new_post)
-        return create_json_response_with_location(data, new_post.id, request.path)
-
-
-def posts_handler_specific(request, id):
-
-    if (request.method == 'POST'):
-        return HttpResponse(status=405)
-
-    elif (request.method == 'PUT' or request.method == 'PATCH'):
-        body = json.loads(request.body)
-        post = Post.objects.get(pk=id)
-        for k, v in body.iteritems():
-            post[k] = v
-        post.save()
-        return HttpResponse(status=200)
-
-    elif (request.method == 'GET'):
-        # validation to see if they can actually access this post based on its
-        # permissions
-        post = Post.objects.get(pk=id)
-        post['comments'] = Comment.objects.filter(post_id=post.id)
-        post['author'] = Author.objects.get(id=post.author_id)
-        serializer = PostSerializer(post)
-        json_data = JSONRenderer().render(serializer.data)
-
-        return HttpResponse(json_data, content_type='application/json')
-
-    elif (request.method == 'DELETE'):
-
-        user = check_authenticate(request)
-        if(user == None):
-            return HttpResponse(status=403)
-
-        try:
-            post = Post.objects.get(pk=id)
-        except:
-            return HttpResponse(status=404)
-
-        try:
-            author = Author.objects.get(user_id=user.id)
-            pass
-
-        except Exception as e:
-
-            return HttpResponse(status=403)
-            raise
-
-        if(post.author_id == author.id):
-            post.delete()
-            return HttpResponse(status=200)
-        else:
-            return HttpResponse(status=403)
-
-
-def author_posts_handler(request):
-    #Posts that are visible to the currently authenticated user
-
-    if (request.method == 'GET'):
-
-        user = check_authenticate(request)
-        if(user == None):
-            return HttpResponse(status=403)
-        try:
-            author = Author.objects.get(user_id=user.id)
-        except:
-            return HttpResponse(status=404)
 
         host = "http://127.0.0.1:8000/"
 
@@ -231,7 +163,7 @@ def author_posts_handler(request):
 
         #Deal with friends and stuff here later.
         posts = Post.objects.filter(
-            Q(author = author.id) | Q(visibility = 'PUBLIC')
+            Q(visibility = 'PUBLIC')
             ).order_by('-published')
 
         count = posts.count()
@@ -307,6 +239,184 @@ def author_posts_handler(request):
 
 
             returnjson['posts'].append(workingdict)
+
+        return JsonResponse(returnjson)
+
+    elif (request.method == 'PUT'):
+        # TODO: VALIDATION... again
+        body = json.loads(request.body)
+        new_post = create_post(body)
+        data = model_to_dict(new_post)
+        return create_json_response_with_location(data, new_post.id, request.path)
+
+
+def posts_handler_specific(request, id):
+
+    if (request.method == 'POST'):
+        return HttpResponse(status=405)
+
+    elif (request.method == 'PUT' or request.method == 'PATCH'):
+        body = json.loads(request.body)
+        post = Post.objects.get(pk=id)
+        for k, v in body.iteritems():
+            post[k] = v
+        post.save()
+        return HttpResponse(status=200)
+
+    elif (request.method == 'GET'):
+        # validation to see if they can actually access this post based on its
+        # permissions
+        post = Post.objects.get(pk=id)
+        post['comments'] = Comment.objects.filter(post_id=post.id)
+        post['author'] = Author.objects.get(id=post.author_id)
+        serializer = PostSerializer(post)
+        json_data = JSONRenderer().render(serializer.data)
+
+        return HttpResponse(json_data, content_type='application/json')
+
+    elif (request.method == 'DELETE'):
+
+        user = check_authenticate(request)
+        if(user == None):
+            return HttpResponse(status=403)
+
+        try:
+            post = Post.objects.get(pk=id)
+        except:
+            return HttpResponse(status=404)
+
+        try:
+            author = Author.objects.get(user_id=user.id)
+            pass
+
+        except Exception as e:
+
+            return HttpResponse(status=403)
+            raise
+
+        if(post.author_id == author.id):
+            post.delete()
+            return HttpResponse(status=200)
+        else:
+            return HttpResponse(status=403)
+
+def specific_author_posts_handler(request, id):
+
+    return HttpResponse(catch_em_all(request))
+
+
+def author_posts_handler(request):
+    #Posts that are visible to the currently authenticated user
+
+    if (request.method == 'GET'):
+
+        user = check_authenticate(request)
+        if(user == None):
+            return HttpResponse(status=403)
+        try:
+            author = Author.objects.get(user_id=user.id)
+        except:
+            return HttpResponse(status=404)
+
+        host = "http://127.0.0.1:8000/"
+
+        service_link = get_service_link()
+
+        #Deal with friends and stuff here later.
+        posts = Post.objects.filter(
+            Q(author = author.id) | Q(visibility = 'PUBLIC')
+            ).order_by('-published')
+
+        #count = posts.count()
+
+        #posts = posts[::1]
+
+        #Check/get page size
+        if 'size' not in request.GET:
+            page_size = 25
+        else:
+            try:
+                page_size = int(request.GET['size'])
+            except:
+                page_size = 25
+
+        #Check/get current page
+        if 'page' not in request.GET:
+            current_page = 0
+        else:
+            try:
+                current_page = int(request.GET['page'])
+            except:
+                current_page = 0
+
+        count = len(posts)
+
+        returnjson = {}
+        returnjson['query'] = "posts"
+        returnjson['count'] = count
+        returnjson['size'] = page_size
+
+        if (current_page * page_size + page_size) < count:
+            returnjson['next'] = service_link + "author/posts?page=" + str((current_page + 1))
+        if(current_page != 0):
+            returnjson['previous'] = service_link + "author/posts?page=" + str((current_page - 1))
+
+        returnjson['posts'] = []
+
+        other_posts = catch_em_all(request)
+        #posts.append(other_posts)
+        #posts = sorted(posts.items(), key=itemgetter('published'))
+
+        for item in posts[current_page*page_size:current_page*page_size+page_size]:
+            workingdict = {}
+            workingdict['title'] = item.title
+            workingdict['source'] = item.source
+            workingdict['origin'] = item.origin
+            workingdict['description'] = item.description
+            workingdict['contentType'] = item.contentType
+            workingdict['content'] = item.content
+            workingdict['id'] = item.id
+            workingdict['published'] = item.published.strftime("%Y-%m-%dT%H:%M:%S+00:00")
+            workingdict['categories'] = item.categories.split(",")
+            comments = item.comment_set.all().order_by('-published')
+            workingdict['author'] = {}
+            workingdict['author']['id'] = item.author.id
+            workingdict['author']['host'] = item.author.host
+            workingdict['author']['displayname'] = item.author.displayName
+            workingdict['author']['url'] = item.author.url
+            workingdict['author']['github'] = item.author.github
+
+
+            workingdict['visibility'] = item.visibility
+            workingdict['count'] = comments.count()
+            workingdict['size'] = page_size
+            workingdict['next'] = service_link + "posts/" + str(item.id) + "/comments"
+            workingdict['comments'] = []
+            for comment in comments[:5]:
+                workingcomment = {}
+                workingcomment['author'] = {}
+                workingcomment['author']['id'] = comment.author.id
+                workingcomment['author']['host'] = comment.author.host
+                workingcomment['author']['displayName'] = comment.author.displayName
+                workingcomment['author']['url'] = comment.author.url
+                workingcomment['author']['github'] = comment.author.github
+                workingcomment['comment'] = comment.comment
+                workingcomment['contentType'] = comment.contentType
+                workingcomment['published'] = comment.published.strftime("%Y-%m-%dT%H:%M:%S+00:00")
+                workingcomment['id'] = comment.id
+                workingdict['comments'].append(workingcomment)
+
+
+            returnjson['posts'].append(workingdict)
+
+        for item in other_posts:
+            returnjson['posts'].append(item)
+
+        #posts = sorted(posts.items(), key=itemgetter('published'))
+
+        returnjson['posts'] = sorted(returnjson['posts'], key=itemgetter('published'))
+
+        returnjson['count'] = len(returnjson['posts'])
 
         return JsonResponse(returnjson)
 
@@ -486,7 +596,7 @@ def friendrequest_handler(request):
             bidirectional.delete()
 
             return HttpResponse(status=201)
-            
+
 
         except:
             # only create the friend request if it doesn't already exist and wasn't rejected
