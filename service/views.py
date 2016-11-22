@@ -7,7 +7,7 @@ from rest_framework.pagination import PageNumberPagination
 from django.contrib.sites.models import Site
 
 from .models import Author, Comment, Post, FriendRequest, Nodes
-from .serializers import PostSerializer, AuthorSerializer, UserSerializer, PostPagination
+from .serializers import PostSerializer, AuthorSerializer, UserSerializer, PostPagination, CommentSerializer
 from .authenticate import check_authenticate
 
 from rest_framework.decorators import api_view
@@ -65,14 +65,13 @@ def create_json_response_with_location(data, id, path):
     json_response.status_code = 201
     return json_response
 
+@api_view(['GET', 'POST'])
 def posts_comments_handler(request, id):
 
     try:
         post = Post.objects.get(id=id)
     except:
         return HttpResponse(status=404)
-
-    current_host = get_host
 
     #Do they have access to this?
     if(post.visibility == "PRIVATE"):
@@ -92,25 +91,18 @@ def posts_comments_handler(request, id):
         except:
             return HttpResponse(status=403)
 
-        comment = json.loads(request.body)
-
-        comment['post'] = post.id
-        comment['author'] = author.id
-
-        #comment['comment'] = "test"
-        #comment['contentType'] = "text/plain"
-
+        comment = request.data
         new_comment = Comment.objects.create(
-                post_id = comment['post'],
-                author_id = comment['author'],
+                post_id = id,
+                author_id = request.user.author.id,
                 comment = comment['comment'],
                 contentType = comment['contentType']
             )
 
-        comment['id'] = new_comment.id
-        comment['published'] = new_comment.published.strftime("%Y-%m-%dT%H:%M:%S+00:00")
+        serializer = CommentSerializer(new_comment)
+        json_data = JSONRenderer().render(serializer.data)
 
-        return HttpResponse(json.dumps(comment))
+        return HttpResponse(json_data, content_type='application/json')
 
     elif(request.method == 'GET'):
 
@@ -154,6 +146,13 @@ def posts_handler_generic(request):
         paginator.page_size = size
         posts = Post.objects.filter(visibility = 'PUBLIC').order_by('-published')
         result_posts = paginator.paginate_queryset(posts, request)
+
+        for post in result_posts:
+            comments = Comment.objects.filter(post_id=post['id']).order_by('-published')
+            author = Author.objects.get(id=post['author_id'])
+            post['comments'] = comments
+            post['author'] = author
+
         serializer = PostSerializer(result_posts, many=True)
         return paginator.get_paginated_response(serializer.data, size)
 
