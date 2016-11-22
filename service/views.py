@@ -358,7 +358,7 @@ def friend_handler(request):
         serializer = AuthorSerializer(friends, many=True)
         json_data = JSONRenderer().render(serializer.data)
         #return HttpResponse(json_data, content_type='application/json')
-        return render(request, 'friends.html', {'friends': friends})
+        return render(request, 'friends.html', {'friends': json_data})
 
     return HttpResponse("My united states of")
 
@@ -486,7 +486,7 @@ def friendrequest_handler(request):
             bidirectional.delete()
 
             return HttpResponse(status=201)
-
+            
 
         except:
             # only create the friend request if it doesn't already exist and wasn't rejected
@@ -507,7 +507,8 @@ def friendrequest_handler(request):
         friend_requests = FriendRequest.objects.filter((
             Q(requester_id=author.id) | Q(requestee_id=author.id)) & Q(accepted__isnull=True))
         serialized = serializers.serialize('json', friend_requests)
-        return HttpResponse(serialized, content_type="application/json")
+	return render(request, "friendrequest.html", friend_requests)
+        #return HttpResponse(serialized, content_type="application/json")
 
     else:
         return HttpResponse(status=405)
