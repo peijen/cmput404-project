@@ -15,6 +15,7 @@ from rest_framework.renderers import JSONRenderer
 
 import json
 import requests
+from requests.auth import HTTPBasicAuth
 import datetime
 from operator import itemgetter
 import dateutil.parser
@@ -37,9 +38,17 @@ def catch_em_all(request):
     posts = []
 
     for node in nodes:
-        stuff = requests.get(node.url + "posts/")
+
+        if node.useauth:
+            stuff = requests.get(node.url + "posts/", auth=HTTPBasicAuth(node.username, node.password))
+            print stuff.content
+        else:
+            stuff = requests.get(node.url + "posts/")
 
         content = json.loads(stuff.content)
+
+        if str(stuff.status_code)[:1] != "2":
+            continue
 
         for post in content['posts']:
             posts.append(post)
@@ -221,6 +230,123 @@ def posts_handler_specific(request, id):
 def specific_author_posts_handler(request, id):
 
     return HttpResponse(catch_em_all(request))
+
+def author_posts_handler_linked(request):
+    #Posts that are visible to the currently authenticated user
+
+    if (request.method == 'GET'):
+
+        user = check_authenticate(request)
+        if(user == None):
+            return HttpResponse(status=403)
+        try:
+            author = Author.objects.get(user_id=user.id)
+        except:
+            return HttpResponse(status=404)
+
+        host = "http://127.0.0.1:8000/"
+
+        service_link = get_service_link()
+
+        #Deal with friends and stuff here later.
+        posts = Post.objects.filter(
+            Q(author = author.id) | Q(visibility = 'PUBLIC')
+            ).order_by('-published')
+
+        #count = posts.count()
+
+        #posts = posts[::1]
+
+        #Check/get page size
+        if 'size' not in request.GET:
+            page_size = 25
+        else:
+            try:
+                page_size = int(request.GET['size'])
+            except:
+                page_size = 25
+
+        #Check/get current page
+        if 'page' not in request.GET:
+            current_page = 0
+        else:
+            try:
+                current_page = int(request.GET['page'])
+            except:
+                current_page = 0
+
+        count = len(posts)
+
+        returnjson = {}
+        returnjson['query'] = "posts"
+        returnjson['count'] = count
+        returnjson['size'] = page_size
+
+        if (current_page * page_size + page_size) < count:
+            returnjson['next'] = service_link + "author/posts?page=" + str((current_page + 1))
+        if(current_page != 0):
+            returnjson['previous'] = service_link + "author/posts?page=" + str((current_page - 1))
+
+        returnjson['posts'] = []
+
+        other_posts = catch_em_all(request)
+        #posts.append(other_posts)
+        #posts = sorted(posts.items(), key=itemgetter('published'))
+
+        for item in posts[current_page*page_size:current_page*page_size+page_size]:
+            workingdict = {}
+            workingdict['title'] = item.title
+            workingdict['source'] = item.source
+            workingdict['origin'] = item.origin
+            workingdict['description'] = item.description
+            workingdict['contentType'] = item.contentType
+            workingdict['content'] = item.content
+            workingdict['id'] = item.id
+            workingdict['published'] = item.published.strftime("%Y-%m-%dT%H:%M:%S+00:00")
+            workingdict['categories'] = item.categories.split(",")
+            comments = item.comment_set.all().order_by('-published')
+            workingdict['author'] = {}
+            workingdict['author']['id'] = item.author.id
+            workingdict['author']['host'] = item.author.host
+            workingdict['author']['displayname'] = item.author.displayName
+            workingdict['author']['url'] = item.author.url
+            workingdict['author']['github'] = item.author.github
+
+
+            workingdict['visibility'] = item.visibility
+            workingdict['count'] = comments.count()
+            workingdict['size'] = page_size
+            workingdict['next'] = service_link + "posts/" + str(item.id) + "/comments"
+            workingdict['comments'] = []
+            for comment in comments[:5]:
+                workingcomment = {}
+                workingcomment['author'] = {}
+                workingcomment['author']['id'] = comment.author.id
+                workingcomment['author']['host'] = comment.author.host
+                workingcomment['author']['displayName'] = comment.author.displayName
+                workingcomment['author']['url'] = comment.author.url
+                workingcomment['author']['github'] = comment.author.github
+                workingcomment['comment'] = comment.comment
+                workingcomment['contentType'] = comment.contentType
+                workingcomment['published'] = comment.published.strftime("%Y-%m-%dT%H:%M:%S+00:00")
+                workingcomment['id'] = comment.id
+                workingdict['comments'].append(workingcomment)
+
+
+            returnjson['posts'].append(workingdict)
+
+        for item in other_posts:
+            returnjson['posts'].append(item)
+
+        #posts = sorted(posts.items(), key=itemgetter('published'))
+
+        returnjson['posts'] = sorted(returnjson['posts'], key=itemgetter('published'))
+
+        returnjson['count'] = len(returnjson['posts'])
+
+        return JsonResponse(returnjson)
+
+    return HttpResponse(status=405)
 
 @api_view(['GET'])
 def author_posts_handler(request):

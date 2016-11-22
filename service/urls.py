@@ -10,7 +10,7 @@ urlpatterns = [
     url(r'^posts/(?P<id>[^/]+)/comments/?$', views.posts_comments_handler, name='comment_handler'),
     url(r'^posts/?$', views.posts_handler_generic, name='post_handler_generic'),
     url(r'^posts/(?P<id>[^/]+)/?$', views.posts_handler_specific,name='post_handler_specific'),
-    url(r'^author/posts/?$', views.author_posts_handler),
+    url(r'^author/posts/?$', views.author_posts_handler_linked),
     url(r'^author/(?P<id>[^/]+)/posts/?$', views.specific_author_posts_handler),
     url(r'^author/(?P<id>[^/]+)/?$', views.author_handler, name='author_handler'),
     url(r'^friends/(?P<author1_id>[0-9a-z-]+)/(?P<author2_id>[0-9a-z-]+)/?$', views.friend_query_handler, name='friend_query_handler'),
