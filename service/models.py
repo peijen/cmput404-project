@@ -29,7 +29,7 @@ VISIBILITY_CHOICES = (
 )
 
 class Author(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
     id = models.UUIDField(primary_key=True, default=uuid.uuid4)
     host = models.CharField(max_length=500, null=True, blank=True)
     displayName = models.CharField(max_length=50, null=True, blank=True, default='')
@@ -90,3 +90,11 @@ class FriendRequest(models.Model):
     requestee = models.ForeignKey(Author, related_name="requestee") #received the friend request
     accepted = models.NullBooleanField(blank=True, null=True, default=None) #was the friend request accepted or rejected? if null means request is pending
     created = models.DateTimeField(auto_now=True) #when was the request created
+
+class Nodes(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
+    url = models.TextField(default=None)
+    username = models.TextField(default=None)
+    password = models.TextField(default=None)
+    def __str__(self):
+        return self.url

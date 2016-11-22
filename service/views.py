@@ -6,7 +6,7 @@ from django.core import serializers
 from rest_framework.pagination import PageNumberPagination
 from django.contrib.sites.models import Site
 
-from .models import Author, Comment, Post, FriendRequest
+from .models import Author, Comment, Post, FriendRequest, Nodes
 from .serializers import PostSerializer, AuthorSerializer, UserSerializer, PostPagination
 from .authenticate import check_authenticate
 
@@ -14,6 +14,10 @@ from rest_framework.decorators import api_view
 from rest_framework.renderers import JSONRenderer
 
 import json
+import requests
+import datetime
+from operator import itemgetter
+import dateutil.parser
 
 # Create your views here.
 
@@ -25,6 +29,22 @@ def index(request):
         return HttpResponse("Not authenticated")
     else:
         return HttpResponse("Authenticated as user" + authenticated.username)
+
+def catch_em_all(request):
+
+    nodes = Nodes.objects.all()
+
+    posts = []
+
+    for node in nodes:
+        stuff = requests.get(node.url + "posts/")
+
+        content = json.loads(stuff.content)
+
+        for post in content['posts']:
+            posts.append(post)
+
+    return posts
 
 
 def create_post(post):
@@ -98,7 +118,7 @@ def posts_comments_handler(request, id):
         return HttpResponse('')
 
 
-@api_view(['GET', 'POST', 'PUT'])
+
 def posts_handler_generic(request):
 
     if (request.method == 'POST'):
@@ -128,18 +148,12 @@ def posts_handler_generic(request):
         return response
 
     elif (request.method == 'GET'):
+
         size = int(request.GET.get('size', 25))
         paginator = PostPagination()
         paginator.page_size = size
         posts = Post.objects.filter(visibility = 'PUBLIC').order_by('-published')
         result_posts = paginator.paginate_queryset(posts, request)
-
-        for post in result_posts:
-            comments = Comment.objects.filter(post_id=post['id'])
-            author = Author.objects.get(id=post['author_id'])
-            post['comments'] = comments
-            post['author'] = author
-
         serializer = PostSerializer(result_posts, many=True)
         return paginator.get_paginated_response(serializer.data, size)
 
@@ -202,6 +216,11 @@ def posts_handler_specific(request, id):
             return HttpResponse(status=403)
 
 @api_view(['GET'])
+def specific_author_posts_handler(request, id):
+
+    return HttpResponse(catch_em_all(request))
+
+
 def author_posts_handler(request):
     #Posts that are visible to the currently authenticated user
 
@@ -269,7 +288,8 @@ def friend_handler(request):
         friends = author.friends.all()
         serializer = AuthorSerializer(friends, many=True)
         json_data = JSONRenderer().render(serializer.data)
-        return HttpResponse(json_data, content_type='application/json')
+        #return HttpResponse(json_data, content_type='application/json')
+        return render(request, 'friends.html', {'friends': json_data})
 
     return HttpResponse(status=405)
 
@@ -418,7 +438,8 @@ def friendrequest_handler(request):
         friend_requests = FriendRequest.objects.filter((
             Q(requester_id=author.id) | Q(requestee_id=author.id)) & Q(accepted__isnull=True))
         serialized = serializers.serialize('json', friend_requests)
-        return HttpResponse(serialized, content_type="application/json")
+	return render(request, "friendrequest.html", friend_requests)
+        #return HttpResponse(serialized, content_type="application/json")
 
     else:
         return HttpResponse(status=405)
