@@ -18,4 +18,4 @@ Werkzeug==0.11.11
 whitenoise==3.2.2
 ws4py==0.3.5
 python-dateutil==2.6.0
-requests=2.12.1
+requests==2.12.1
