@@ -165,46 +165,6 @@ class TestPosts(TestCase):
         response = c.post('/service/friendrequest/', json.dumps({"query":"friendrequest", "friend": {"id": str(author2.id)}, "author": {"id": str(self.author.id)}}), content_type="application/json")
         should_exist = FriendRequest.objects.get(pk=response['location'].replace('/service/friendrequest/', ''))
 
-    def test_can_retrieve_pending_friend_requests(self):
-        user2 = User.objects.create_user(username='user2', email='test@test.com', password='test')
-        user3 = User.objects.create_user(username='user3', email='test@test.com', password='test')
-        user4 = User.objects.create_user(username='user4', email='test@test.com', password='test')
-        user5 = User.objects.create_user(username='user5', email='test@test.com', password='test')
-
-        author2 = Author.objects.get(user_id=user2.id)
-        author3 = Author.objects.get(user_id=user3.id)
-        author4 = Author.objects.get(user_id=user4.id)
-        author5 = Author.objects.get(user_id=user5.id)
-
-        response = c.post('/service/friendrequest/', json.dumps({"query":"friendrequest", "friend": {"id": str(author2.id)}, "author": {"id": str(self.author.id)}}), content_type="application/json")
-        response = c.post('/service/friendrequest/', json.dumps({"query":"friendrequest", "friend": {"id": str(author3.id)}, "author": {"id": str(self.author.id)}}), content_type="application/json")
-        response = c.post('/service/friendrequest/', json.dumps({"query":"friendrequest", "friend": {"id": str(author4.id)}, "author": {"id": str(self.author.id)}}), content_type="application/json")
-        response = c.post('/service/friendrequest/', json.dumps({"query":"friendrequest", "friend": {"id": str(author5.id)}, "author": {"id": str(self.author.id)}}), content_type="application/json")
-
-        response = c.get('/service/friendrequest/')
-        content = json.loads(response.content)
-        self.assertEqual(len(content), 4)
-
-    def test_also_retrieves_friend_requests_where_is_requestee(self):
-        user2 = User.objects.create_user(username='user2', email='test@test.com', password='test')
-        user3 = User.objects.create_user(username='user3', email='test@test.com', password='test')
-        user4 = User.objects.create_user(username='user4', email='test@test.com', password='test')
-        user5 = User.objects.create_user(username='user5', email='test@test.com', password='test')
-
-        author2 = Author.objects.get(user_id=user2.id)
-        author3 = Author.objects.get(user_id=user3.id)
-        author4 = Author.objects.get(user_id=user4.id)
-        author5 = Author.objects.get(user_id=user5.id)
-
-        fr1 = FriendRequest.objects.create(requester=author2, requestee=self.author)
-        fr2 = FriendRequest.objects.create(requester=author3, requestee=self.author)
-        fr3 = FriendRequest.objects.create(requester=author4, requestee=self.author)
-        fr4 = FriendRequest.objects.create(requester=author5, requestee=author2)
-
-        response = c.get('/service/friendrequest/')
-        content = json.loads(response.content)
-        self.assertEqual(len(content), 3)
-
     def test_can_accept_friend_request(self):
         user2 = User.objects.create_user(username='user2', email='test@test.com', password='test')
         author2 = Author.objects.get(user_id=user2.id)
@@ -221,15 +181,6 @@ class TestPosts(TestCase):
 
         friends = self.author.friends.all()
         self.assertEqual(len(friends), 0)
-
-    def test_added_to_friends_list(self):
-        user2 = User.objects.create_user(username='user2', email='test@test.com', password='test')
-        author2 = Author.objects.get(user_id=user2.id)
-        self.author.friends.add(author2)
-        response = c.get('/service/friends')
-        friends = json.loads(response.content)
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(friends), 1)
 
     def test_can_query_if_friends_current_user(self):
         user2 = User.objects.create_user(username='user2', email='test@test.com', password='test')

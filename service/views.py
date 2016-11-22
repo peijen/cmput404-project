@@ -118,7 +118,7 @@ def posts_comments_handler(request, id):
         return HttpResponse('')
 
 
-
+@api_view(['GET', 'POST', 'PUT'])
 def posts_handler_generic(request):
 
     if (request.method == 'POST'):
@@ -215,12 +215,12 @@ def posts_handler_specific(request, id):
         else:
             return HttpResponse(status=403)
 
-@api_view(['GET'])
+
 def specific_author_posts_handler(request, id):
 
     return HttpResponse(catch_em_all(request))
 
-
+@api_view(['GET'])
 def author_posts_handler(request):
     #Posts that are visible to the currently authenticated user
 
