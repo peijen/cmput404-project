@@ -62,7 +62,11 @@ $("#makepost").submit(function(e){
 
     e.preventDefault();
 
-    var data = {}
+    var data = {
+        'source': window.location.href,
+        'origin': window.location.href
+    }
+
     var Form = this;
     var csrftoken = Cookies.get('csrftoken');
 
