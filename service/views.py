@@ -111,11 +111,7 @@ def posts_handler_generic(request):
         except:
             return HttpResponse(status=403)
 
-        post = json.loads(request.body)
-
-        #TODO: whatever this is supposed to be needs to be fixed
-        post['source'] = "http://127.0.0.1:8000/posts/fixthislater"
-        post['origin'] = "http://127.0.0.1:8000/posts/originfixthislater"
+        post = request.data.copy()
         post['author_id'] = author.id
 
         created = create_post(post)
@@ -131,17 +127,11 @@ def posts_handler_generic(request):
 
         return response
 
-        #return create_json_response_with_location(data, new_post.id, request.path)
-
     elif (request.method == 'GET'):
-        # TODO: this should return all the posts that a user can see, i.e their
-        # stream, not all posts in db
-        posts = Post.objects.all()
-        size = request.GET.get('size', '25')
-
+        size = int(request.GET.get('size', 25))
         paginator = PostPagination()
         paginator.page_size = size
-        posts = Post.objects.all()
+        posts = Post.objects.filter(visibility = 'PUBLIC').order_by('-published')
         result_posts = paginator.paginate_queryset(posts, request)
 
         for post in result_posts:
@@ -151,7 +141,7 @@ def posts_handler_generic(request):
             post['author'] = author
 
         serializer = PostSerializer(result_posts, many=True)
-        return paginator.get_paginated_response(serializer.data)
+        return paginator.get_paginated_response(serializer.data, size)
 
     elif (request.method == 'PUT'):
         # TODO: VALIDATION... again
@@ -211,7 +201,7 @@ def posts_handler_specific(request, id):
         else:
             return HttpResponse(status=403)
 
-
+@api_view(['GET'])
 def author_posts_handler(request):
     #Posts that are visible to the currently authenticated user
 
@@ -225,91 +215,24 @@ def author_posts_handler(request):
         except:
             return HttpResponse(status=404)
 
-        host = "http://127.0.0.1:8000/"
-
-        service_link = get_service_link()
-
         #Deal with friends and stuff here later.
         posts = Post.objects.filter(
             Q(author = author.id) | Q(visibility = 'PUBLIC')
             ).order_by('-published')
 
-        count = posts.count()
+        size = int(request.GET.get('size', 25))
+        paginator = PostPagination()
+        paginator.page_size = size
+        result_posts = paginator.paginate_queryset(posts, request)
 
-        #Check/get page size
-        if 'size' not in request.GET:
-            page_size = 25
-        else:
-            try:
-                page_size = int(request.GET['size'])
-            except:
-                page_size = 25
+        for post in result_posts:
+            comments = Comment.objects.filter(post_id=post['id'])
+            author = Author.objects.get(id=post['author_id'])
+            post['comments'] = comments
+            post['author'] = author
 
-        #Check/get current page
-        if 'page' not in request.GET:
-            current_page = 0
-        else:
-            try:
-                current_page = int(request.GET['page'])
-            except:
-                current_page = 0
-
-        returnjson = {}
-        returnjson['query'] = "posts"
-        returnjson['count'] = posts.count()
-        returnjson['size'] = page_size
-
-        if (current_page * page_size + page_size) < count:
-            returnjson['next'] = service_link + "author/posts?page=" + str((current_page + 1))
-        if(current_page != 0):
-            returnjson['previous'] = service_link + "author/posts?page=" + str((current_page - 1))
-
-        returnjson['posts'] = []
-
-        for item in posts[current_page*page_size:current_page*page_size+page_size]:
-            workingdict = {}
-            workingdict['title'] = item.title
-            workingdict['source'] = item.source
-            workingdict['origin'] = item.origin
-            workingdict['description'] = item.description
-            workingdict['contentType'] = item.contentType
-            workingdict['content'] = item.content
-            workingdict['id'] = item.id
-            workingdict['published'] = item.published.strftime("%Y-%m-%dT%H:%M:%S+00:00")
-            workingdict['categories'] = item.categories.split(",")
-            comments = item.comment_set.all().order_by('-published')
-            workingdict['author'] = {}
-            workingdict['author']['id'] = item.author.id
-            workingdict['author']['host'] = item.author.host
-            workingdict['author']['displayname'] = item.author.displayName
-            workingdict['author']['url'] = item.author.url
-            workingdict['author']['github'] = item.author.github
-
-
-            workingdict['visibility'] = item.visibility
-            workingdict['count'] = comments.count()
-            workingdict['size'] = page_size
-            workingdict['next'] = service_link + "posts/" + str(item.id) + "/comments"
-            workingdict['comments'] = []
-            for comment in comments[:5]:
-                workingcomment = {}
-                workingcomment['author'] = {}
-                workingcomment['author']['id'] = comment.author.id
-                workingcomment['author']['host'] = comment.author.host
-                workingcomment['author']['displayName'] = comment.author.displayName
-                workingcomment['author']['url'] = comment.author.url
-                workingcomment['author']['github'] = comment.author.github
-                workingcomment['comment'] = comment.comment
-                workingcomment['contentType'] = comment.contentType
-                workingcomment['published'] = comment.published.strftime("%Y-%m-%dT%H:%M:%S+00:00")
-                workingcomment['id'] = comment.id
-                workingdict['comments'].append(workingcomment)
-
-
-            returnjson['posts'].append(workingdict)
-
-        return JsonResponse(returnjson)
-
+        serializer = PostSerializer(result_posts, many=True)
+        return paginator.get_paginated_response(serializer.data, size)
 
     return HttpResponse(status=405)
 
@@ -330,26 +253,15 @@ def author_handler(request, id):
     #Return the foreign author's profile
     if (request.method == 'POST'):
         return HttpResponse("")
+
     elif (request.method == 'GET'):
+
         author = Author.objects.get(id=id)
+        author['friends'] = author.friends.all()
+        serializer = AuthorSerializer(author)
+        json_data = JSONRenderer().render(serializer.data)
 
-        response = {}
-        response['id'] = author.id
-        response['host'] = get_host()
-        response['displayName'] = author.displayName
-        response['url'] = get_host() + "author/" + str(author.id)
-
-        #Add friends here later
-        response['friends'] = []
-
-        response['github_username'] = author.github
-        response['first_name'] = author.firstName
-        response['last_name'] = author.lastName
-        response['email'] = author.email
-        response['bio'] = author.bio
-
-        return JsonResponse(response)
-
+        return HttpResponse(json_data, content_type='application/json')
 
 def friend_handler(request):
     if (request.method == 'GET'):
@@ -359,7 +271,7 @@ def friend_handler(request):
         json_data = JSONRenderer().render(serializer.data)
         return HttpResponse(json_data, content_type='application/json')
 
-    return HttpResponse("My united states of")
+    return HttpResponse(status=405)
 
 def friend_handler_specific(request, id):
     if (request.method == 'DELETE'):

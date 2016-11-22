@@ -45,16 +45,82 @@ class TestPosts(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_can_retrieve_posts_with_http(self):
-        Post.objects.create(title="Test123", author_id=self.author.id)
-        Post.objects.create(title="Test345", author_id=self.author.id)
-        Post.objects.create(title="Test567", author_id=self.author.id)
+        Post.objects.create(title="Test123", author_id=self.author.id, visibility='PUBLIC')
+        Post.objects.create(title="Test345", author_id=self.author.id, visibility='PUBLIC')
+        Post.objects.create(title="Test567", author_id=self.author.id, visibility='PUBLIC')
         response = c.get('/service/posts/')
         jsonres = json.loads(response.content)
         list_data = jsonres['posts']
         self.assertEqual(len(list_data), 3)
 
+    def test_can_retrieve_paginated_posts(self):
+        Post.objects.create(title="Test123", author_id=self.author.id, visibility='PUBLIC')
+        Post.objects.create(title="Test345", author_id=self.author.id, visibility='PUBLIC')
+        Post.objects.create(title="Test567", author_id=self.author.id, visibility='PUBLIC')
+        response = c.get('/service/posts?page=1&size=1')
+        jsonres = json.loads(response.content)
+        list_data = jsonres['posts']
+        self.assertEqual(len(list_data), 1)
+        self.assertIn('next', jsonres)
+        self.assertIn('query', jsonres)
+        self.assertEqual(jsonres['size'], 1)
+        self.assertNotIn('previous', jsonres)
+
+        response = c.get('/service/posts?page=2&size=1')
+        jsonres = json.loads(response.content)
+        list_data = jsonres['posts']
+        self.assertEqual(len(list_data), 1)
+        self.assertIn('next', jsonres)
+        self.assertIn('previous', jsonres)
+
+        response = c.get('/service/posts?page=3&size=1')
+        jsonres = json.loads(response.content)
+        list_data = jsonres['posts']
+        self.assertEqual(len(list_data), 1)
+        self.assertIn('previous', jsonres)
+        self.assertNotIn('next', jsonres)
+
+    def test_can_retrieve_author_posts_http(self):
+        Post.objects.create(title="Test123", author_id=self.author.id, visibility='PUBLIC')
+        Post.objects.create(title="Test345", author_id=self.author.id, visibility='PUBLIC')
+        Post.objects.create(title="Test567", author_id=self.author.id, visibility='PUBLIC')
+        response = c.get('/service/author/posts')
+        jsonres = json.loads(response.content)
+        list_data = jsonres['posts']
+        self.assertEqual(len(list_data), 3)
+        self.assertIn('query', jsonres)
+        self.assertNotIn('previous', jsonres)
+        self.assertNotIn('next', jsonres)
+
+    def test_can_retrieve_author_posts_http_with_paging(self):
+        Post.objects.create(title="Test123", author_id=self.author.id, visibility='PUBLIC')
+        Post.objects.create(title="Test345", author_id=self.author.id, visibility='PUBLIC')
+        Post.objects.create(title="Test567", author_id=self.author.id, visibility='PUBLIC')
+        response = c.get('/service/author/posts?page=1&size=1')
+        jsonres = json.loads(response.content)
+        list_data = jsonres['posts']
+        self.assertEqual(len(list_data), 1)
+        self.assertIn('next', jsonres)
+        self.assertIn('query', jsonres)
+        self.assertEqual(jsonres['size'], 1)
+        self.assertNotIn('previous', jsonres)
+
+        response = c.get('/service/author/posts?page=2&size=1')
+        jsonres = json.loads(response.content)
+        list_data = jsonres['posts']
+        self.assertEqual(len(list_data), 1)
+        self.assertIn('next', jsonres)
+        self.assertIn('previous', jsonres)
+
+        response = c.get('/service/author/posts?page=3&size=1')
+        jsonres = json.loads(response.content)
+        list_data = jsonres['posts']
+        self.assertEqual(len(list_data), 1)
+        self.assertIn('previous', jsonres)
+        self.assertNotIn('next', jsonres)
+
     def test_can_delete_posts_with_http(self):
-        post = Post.objects.create(title="Test123", author_id=self.author.id)
+        post = Post.objects.create(title="Test123", author_id=self.author.id, visibility='PUBLIC')
         response = c.delete('/service/posts/' + str(post.id) +'/')
         self.assertEqual(response.status_code, 200)
         try:
@@ -64,7 +130,7 @@ class TestPosts(TestCase):
             pass
 
     def test_can_retrieve_specific_post_with_http(self):
-        post = Post.objects.create(title="Test123", author_id=self.author.id)
+        post = Post.objects.create(title="Test123", author_id=self.author.id, visibility='PUBLIC')
         response = c.get('/service/posts/' + str(post.id) + '/')
         self.assertEqual(response.status_code, 200)
         server_post = json.loads(response.content)
@@ -76,7 +142,7 @@ class TestPosts(TestCase):
         self.assertIn('description', server_post)
 
     def test_can_update_post(self):
-        post = Post.objects.create(title="Test123", author_id=self.author.id)
+        post = Post.objects.create(title="Test123", author_id=self.author.id, visibility='PUBLIC')
         response = c.put('/service/posts/' + str(post.id) +'/', json.dumps({"content":"1"}))
         new_post = Post.objects.get(pk=post.id)
         self.assertEqual(new_post.content, "1")

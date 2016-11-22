@@ -3,7 +3,6 @@ from rest_framework.response import Response
 from .models import Author, Comment, Post, FriendRequest, VISIBILITY_CHOICES
 from django.contrib.auth.models import User
 
-
 class AuthorSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -33,13 +32,24 @@ class PostSerializer(serializers.ModelSerializer):
 
 class PostPagination(pagination.PageNumberPagination):
 
-    def get_paginated_response(self, data):
-        return Response({
-            'next': self.get_next_link(),
-            'previous': self.get_previous_link(),
+    def get_paginated_response(self, data, size):
+
+        obj = {
+            'query': 'posts',
             'count': self.page.paginator.count,
+            'size': size,
             'posts': data
-        })
+        }
+
+        next_link = self.get_next_link()
+        previous_link = self.get_previous_link()
+        if (next_link):
+            obj['next'] = next_link
+
+        if (previous_link):
+            obj['previous'] = previous_link
+
+        return Response(obj)
 
 
 class FriendRequestSerializer(serializers.ModelSerializer):

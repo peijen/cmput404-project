@@ -13,9 +13,9 @@
 {% endif %}
   <div>
   <!--TODO need to where figure out where to send this -->
-  <form action="" method="POST" id="makepost">
+  <form action="./" method="POST" id="makepost">
   {% csrf_token %}
-  <div class="form-group"> 
+  <div class="form-group">
     <label for="title">Title</label>
     <input type ="text" id="title" name="title" placeholder="Title" class="form-control">
   </div>
@@ -95,11 +95,10 @@ $("#makepost").submit(function(e){
         url : '{% url 'service:post_handler_generic'%}',
         type: "POST",
         dataType : "json",
-        data : JSON.stringify(data),
+        data : data,
         context : Form,
         success : function(callback){
             //Where $(this) => context == FORM
-            console.log(callback)
 
             //$(this).html("Received HTTP 200. Post should now be in database.");
             window.location.href = "{% url 'website:home'%}"
