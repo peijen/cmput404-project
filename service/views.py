@@ -44,6 +44,7 @@ def catch_em_all(request):
             print stuff.content
         else:
             stuff = requests.get(node.url + "posts/")
+            print stuff.content
 
         content = json.loads(stuff.content)
 
