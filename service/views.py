@@ -118,7 +118,7 @@ def posts_comments_handler(request, id):
         return HttpResponse('')
 
 
-@api_view(['GET', 'POST', 'PUT'])
+
 def posts_handler_generic(request):
 
     if (request.method == 'POST'):
