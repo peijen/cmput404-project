@@ -275,7 +275,7 @@ def author_handler(request, id):
     elif (request.method == 'GET'):
 
         author = Author.objects.get(id=id)
-        author['friends'] = author.friends.all()
+        author.friends = author.friends.all()
         serializer = AuthorSerializer(author)
         json_data = JSONRenderer().render(serializer.data)
 
