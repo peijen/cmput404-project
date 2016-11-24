@@ -531,12 +531,12 @@ def friend_request_exists(requester_id, requestee_id):
 
 def friendrequest_handler(request):
     if (request.method == 'POST'):
+	print "GOT HERE SO REQUEST WORKS"
         # TODO: validation, are they already friends?
         body = json.loads(request.body)
-
         # try to get an existing reverse friend request (where the requester is the requestee)
         try:
-            bidirectional = FriendRequest.objects.get(requestee_id=body['author']['id'], requester_id=body['friend']['id'])
+            bidirectional = FriendRequest.objects.get(requestee_id=body['user_id'], requester_id=body['friend_id'])
 
             # exists a friend request from the other user, even if it was previously rejected
             # make users friends
@@ -553,10 +553,10 @@ def friendrequest_handler(request):
 
         except:
             # only create the friend request if it doesn't already exist and wasn't rejected
-            fr = friend_request_exists(body['author']['id'], body['friend']['id'])
+            fr = friend_request_exists(body["user_id"], body['friend_id'])
 
             if not fr:
-                fr = FriendRequest.objects.create(requester_id=body['author']['id'], requestee_id=body['friend']['id'])
+                fr = FriendRequest.objects.create(requester_id=body['user_id'], requestee_id=body['friend_id'])
                 data = model_to_dict(fr)
                 return create_json_response_with_location(data, fr.id, request.path)
 
@@ -570,7 +570,7 @@ def friendrequest_handler(request):
         friend_requests = FriendRequest.objects.filter((
             Q(requester_id=author.id) | Q(requestee_id=author.id)) & Q(accepted__isnull=True))
         serialized = serializers.serialize('json', friend_requests)
-	return render(request, "friendrequest.html", friend_requests)
+	return render(request, "friendrequest.html", {"serial":serialized})
         #return HttpResponse(serialized, content_type="application/json")
 
     else:
