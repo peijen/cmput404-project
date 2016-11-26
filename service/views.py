@@ -309,7 +309,7 @@ def author_posts_handler_linked(request):
             workingdict['author'] = {}
             workingdict['author']['id'] = item.author.id
             workingdict['author']['host'] = item.author.host
-            workingdict['author']['displayname'] = item.author.displayName
+            workingdict['author']['displayName'] = item.author.displayName
             workingdict['author']['url'] = item.author.url
             workingdict['author']['github'] = item.author.github
 
