@@ -248,11 +248,12 @@ def author_posts_handler_linked(request):
         host = "http://127.0.0.1:8000/"
 
         service_link = get_service_link()
+        my_friends = user.friends.all()
 
         #Deal with friends and stuff here later.
-        posts = Post.objects.filter(
-            Q(author = author.id) | Q(visibility = 'PUBLIC')
-            ).order_by('-published')
+        #posts = Post.objects.filter(
+        #    Q(author = author.id) | Q(visibility = 'PUBLIC') | Q(target_author in my_friends )
+        #    ).order_by('-published')
 
         #count = posts.count()
 
@@ -362,6 +363,8 @@ def author_posts_handler(request):
             author = Author.objects.get(user_id=user.id)
         except:
             return HttpResponse(status=404)
+            
+        my_friends = user.friends.all()
 
         #Deal with friends and stuff here later.
         posts = Post.objects.filter(
@@ -418,10 +421,10 @@ def friend_handler(request):
     if (request.method == 'GET'):
         author = Author.objects.get(user_id=request.user.id)
         friends = author.friends.all()
-        serializer = AuthorSerializer(friends, many=True)
-        json_data = JSONRenderer().render(serializer.data)
+        #serializer = AuthorSerializer(friends, many=True)
+        #json_data = JSONRenderer().render(serializer.data)
         #return HttpResponse(json_data, content_type='application/json')
-        return render(request, 'friends.html', {'friends': json_data})
+        return render(request, 'friends.html', {"friend":friends})
 
     return HttpResponse(status=405)
 
@@ -529,6 +532,47 @@ def friend_request_exists(requester_id, requestee_id):
     except:
         return False
 
+def friendrequest_handler_ad(request):
+	
+	if (request.method == 'POST'):
+		print "sup doods"
+		
+		stuff = json.loads(request.body)
+		print stuff
+		
+		if stuff['action'] == "accept":
+			
+			print "accept the stuff"
+			
+			request = FriendRequest.objects.get(id=stuff['id'])
+			
+			requester = request.requester
+			requestee = request.requestee
+			
+			requester.friends.add(requestee)
+			requestee.friends.add(requester)
+			
+			request.delete()
+			
+		elif stuff['action'] == "decline":
+			
+			print stuff['id']
+			
+			try:
+				request = FriendRequest.objects.get(id=stuff['id'])
+				request.delete()
+			except:
+				return HttpResponse(status=404)
+			
+		else:
+			return HttpResponse(status=400)
+			
+					
+		return HttpResponse(status=200)
+		
+		
+	return HttpResponse(status=400)
+
 def friendrequest_handler(request):
     
     if (request.method == 'POST'):
@@ -597,55 +641,20 @@ def friendrequest_handler(request):
     elif (request.method == 'GET'):
 
         author = Author.objects.get(user_id=request.user.id)
-        friend_requests = FriendRequest.objects.filter((
-            Q(requester_id=author.id) | Q(requestee_id=author.id)) & Q(accepted__isnull=True))
+        friend_requests = FriendRequest.objects.filter((Q(requestee_id=author.id) & Q(accepted__isnull=True)))
         
-        serialized = serializers.serialize('json', friend_requests)
-        
-        #grabbing requester id and requestee id
-        list_of_id = [req.requester_id for req in friend_requests]
-        list_of_id2 = [reqe.requestee_id for reqe in friend_requests]
-        requester_name = Author.objects.get(id=list_of_id[1])
-        print "requester_name:", requester_name
-
-        requestee_name = Author.objects.get(id=list_of_id2[0])
-        print "requestee_name:", requestee_name
-
-
-        #requestee 
-        for e in range(0,len(list_of_id2)):
-            if (list_of_id2[e] == author.id):
-                reqlist = []
-	        for i in range(0,len(list_of_id)):
-                    print list_of_id[i]
-                    print Author.objects.get(id=list_of_id[i])
-                    reqlist.append(Author.objects.get(id=list_of_id[i]))
-        return render(request, "friendrequest.html", {"serial":reqlist, "id":list_of_id})
-        
-
-        #if (list_of_id2[0] == author.id):
-        #   return render(request, "friendrequest.html", {"serial":requester_name})
-        
-
-
-        print "\n"
-        
-        #print ser
-
-        print request.user
-        # print FriendRequest.objects.get(id=)
-        print "\n"
-        print serialized
-        print author.id
-  
-        #print FriendRequest.objects.all().values('requester_id')
-        #print FriendRequest.objects.get()
-       
-        #friend_req = FriendRequest.objects.get(requester_id=request.user.id)
+        returnl = []
+        for item in friend_requests:
+            dicti = {}
+            dicti['username'] = Author.objects.get(id=item.requester.id).displayName
+            dicti['requester_id'] = item.requester.id
+            dicti['request_id'] = item.id
+            returnl.append(dicti)
+				
 
 
 
-        return render(request, "friendrequest.html", {"serial":"ffff"})	
+        return render(request, "friendrequest.html", {"pendingFriend":returnl})	
         #return HttpResponse(serialized, content_type="application/json")
 
     else:
