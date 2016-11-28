@@ -16,8 +16,13 @@
 </div>
 <div class = "jumbotron" id="jumbobody">
 <h1>Friend List</h1>
+<ul>
+{% for i in friend %}
+<li>
+	{{ i }}
+</li>
+{% endfor %}
+</ul>
 
-
-{{friends}}
 </div>
 {% endblock %}
