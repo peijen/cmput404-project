@@ -251,9 +251,9 @@ def author_posts_handler_linked(request):
         my_friends = user.friends.all()
 
         #Deal with friends and stuff here later.
-        #posts = Post.objects.filter(
-        #    Q(author = author.id) | Q(visibility = 'PUBLIC') | Q(target_author in my_friends )
-        #    ).order_by('-published')
+        posts = Post.objects.filter(
+            Q(author = author.id) | Q(visibility = 'PUBLIC') | Q(author__in = my_friends)
+            ).order_by('-published')
 
         #count = posts.count()
 
@@ -364,11 +364,13 @@ def author_posts_handler(request):
         except:
             return HttpResponse(status=404)
             
-        #my_friends = user.friends.all()
+        my_friends = author.friends.all()
+        
+        print my_friends
 
         #Deal with friends and stuff here later.
         posts = Post.objects.filter(
-            Q(author = author.id) | Q(visibility = 'PUBLIC')
+            Q(author = author.id) | Q(visibility = 'PUBLIC') | Q(author__in = my_friends)
             ).order_by('-published')
 
         size = int(request.GET.get('size', 25))
