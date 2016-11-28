@@ -12,26 +12,34 @@
 <div class="entry">
   <img src="/static/images/No_image_available.svg" alt="img" id="profile_picture"> <!--hardcoded image for now-->
 </div>
-{{author.id}}
+{{author.id}}  author id
+<br>
+User: {{user}}
+<br>
+profile_user: {{profile_user}}
+<br>
+user id: {{user_id}}
 <br>
 
-
-{{user_id}}
+<br>
 <h2 id="display_name"> {{author.displayName }} &nbsp; </h2>
-{% if not profile_id == user_id %}
+
+<!-- checking if you are adding yourself as friend   -->
+{% if not author.id == user_id %}<!-- if it's someone else, the button will show up  -->
 {% if errors %}<p>{{ errors|join:", " }}</p>{% endif %}
+
 <form action="{% url 'service:friendrequest_handler' %}" method="post" id="friend_form">
 {% csrf_token %}
-<input type="submit" value="Send Friend Request" />
+<input type="submit" id="friendButton" onclick="function(e)" value="Send Friend Request" />
 </form>
 
 <script type="text/javascript">
 var request_user = "{{request_user| escapejs}}";
-var user_id = "{{user_id | escapejs}}";
+var user_id = "{{user_id| escapejs}}";
 var friend = "{{profile_user| escapejs}}";
 var profile_id = "{{author.id| escapejs}}";
-
 </script>
+
 <script src="{% static 'js/friendrequest.js' %}">
 </script>
 

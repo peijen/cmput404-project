@@ -1,6 +1,7 @@
 
 $("#friend_form").submit(function(e){
-    debugger;
+    //debugger;
+    document.getElementById("friendButton").disabled = true;
     e.preventDefault();
     var FriendForm = $(this);
     var csrftoken = Cookies.get('csrftoken');

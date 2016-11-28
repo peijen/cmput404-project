@@ -8,13 +8,36 @@
  <link rel="stylesheet" href="/static/css/author.css"/>
 <div class="container">
 
-{{serial}}
+
+
+
 <div class="row">
 </div>
 </div>
 <div class="entry">
 </div>
 <div class = "jumbotron" id="jumbobody">
-<h1>test page for friend requests</h1>
+<h1>Friend Requests</h1>
+
+<form action="{% url 'service:friendrequest_handler' %}" method="post" id="accept">
+{% csrf_token %}
+
+</form>
+
+
+
+{% for i in serial %}
+{{i}} <button type="submit" form="accept">Accept</button> <button>Decline</button> </br></br>
+
+{% endfor  %}
+
 </div>
+<script type="text/javascript">
+
+
+</script>
+
+
+
+
 {% endblock %}

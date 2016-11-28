@@ -530,10 +530,12 @@ def friend_request_exists(requester_id, requestee_id):
         return False
 
 def friendrequest_handler(request):
+    
     if (request.method == 'POST'):
 	print "GOT HERE SO REQUEST WORKS"
         # TODO: validation, are they already friends?
         body = json.loads(request.body)
+        print body
         # try to get an existing reverse friend request (where the requester is the requestee)
         try:
             bidirectional = FriendRequest.objects.get(requestee_id=body['user_id'], requester_id=body['friend_id'])
@@ -566,11 +568,56 @@ def friendrequest_handler(request):
 
     # return users list of pending requests
     elif (request.method == 'GET'):
+
         author = Author.objects.get(user_id=request.user.id)
         friend_requests = FriendRequest.objects.filter((
             Q(requester_id=author.id) | Q(requestee_id=author.id)) & Q(accepted__isnull=True))
+        
         serialized = serializers.serialize('json', friend_requests)
-	return render(request, "friendrequest.html", {"serial":serialized})
+        
+        #grabbing requester id and requestee id
+        list_of_id = [req.requester_id for req in friend_requests]
+        list_of_id2 = [reqe.requestee_id for reqe in friend_requests]
+        requester_name = Author.objects.get(id=list_of_id[1])
+        print "requester_name:", requester_name
+
+        requestee_name = Author.objects.get(id=list_of_id2[0])
+        print "requestee_name:", requestee_name
+
+
+        #requestee
+        if (list_of_id2[0] == author.id):
+            reqlist = []
+	    for i in range(0,len(list_of_id)):
+                print list_of_id[i]
+                print Author.objects.get(id=list_of_id[i])
+                reqlist.append(Author.objects.get(id=list_of_id[i]))
+        return render(request, "friendrequest.html", {"serial":reqlist})
+        
+
+        #if (list_of_id2[0] == author.id):
+        #   return render(request, "friendrequest.html", {"serial":requester_name})
+        
+
+
+        print "\n"
+        
+        #print ser
+
+        print request.user
+        # print FriendRequest.objects.get(id=)
+        print "\n"
+        print serialized
+        print author.id
+  
+        #print FriendRequest.objects.all().values('requester_id')
+        #print FriendRequest.objects.get()
+       
+        #friend_req = FriendRequest.objects.get(requester_id=request.user.id)
+
+
+
+        return render(request, "friendrequest.html", {"serial":"ffff"})	
         #return HttpResponse(serialized, content_type="application/json")
 
     else:
