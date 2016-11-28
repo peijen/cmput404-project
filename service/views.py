@@ -585,14 +585,15 @@ def friendrequest_handler(request):
         print "requestee_name:", requestee_name
 
 
-        #requestee
-        if (list_of_id2[0] == author.id):
-            reqlist = []
-	    for i in range(0,len(list_of_id)):
-                print list_of_id[i]
-                print Author.objects.get(id=list_of_id[i])
-                reqlist.append(Author.objects.get(id=list_of_id[i]))
-        return render(request, "friendrequest.html", {"serial":reqlist})
+        #requestee 
+        for e in range(0,len(list_of_id2)):
+            if (list_of_id2[e] == author.id):
+                reqlist = []
+	        for i in range(0,len(list_of_id)):
+                    print list_of_id[i]
+                    print Author.objects.get(id=list_of_id[i])
+                    reqlist.append(Author.objects.get(id=list_of_id[i]))
+        return render(request, "friendrequest.html", {"serial":reqlist, "id":list_of_id})
         
 
         #if (list_of_id2[0] == author.id):

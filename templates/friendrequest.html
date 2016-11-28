@@ -5,7 +5,7 @@
 
  <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
  <script src="/static/js/js.cookie.js"></script>
- <link rel="stylesheet" href="/static/css/author.css"/>
+ <link rel="stylesheet" href="/static/css/friendrequest.css"/>
 <div class="container">
 
 
@@ -19,21 +19,83 @@
 <div class = "jumbotron" id="jumbobody">
 <h1>Friend Requests</h1>
 
+
+
 <form action="{% url 'service:friendrequest_handler' %}" method="post" id="accept">
 {% csrf_token %}
 
 </form>
 
 
-
+{% for i in id %}
+{{i}} <br>
+{% endfor %}
+<br>
 {% for i in serial %}
-{{i}} <button type="submit" form="accept">Accept</button> <button>Decline</button> </br></br>
+<span id="disName"> {{i}}: </span> <span id="Btn"> <button type="submit" form="accept">Accept</button> <button>Decline</button> </span> </br></br>
 
-{% endfor  %}
+{% endfor %}
 
 </div>
 <script type="text/javascript">
 
+$("#accept").submit(function(e){
+    //debugger;
+    
+    e.preventDefault();
+    var FriendForm = $(this);
+    var csrftoken = Cookies.get('csrftoken');
+    //sending data using post
+
+
+    var data= {
+               "author": request_user,  
+               "user_id": user_id,
+               "friend": friend,
+               "friend_id": profile_id, 
+              }   
+
+
+    function csrfSafeMethod(method) {
+      // these HTTP methods do not require CSRF protection
+      return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+    }
+
+    $.ajaxSetup({
+      beforeSend: function(xhr, settings) {
+          if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+              xhr.setRequestHeader("X-CSRFToken", csrftoken);
+          }
+      }
+    });
+ 
+    $.ajax({
+        cache: false,
+        url : "/service/friendrequest",
+        type: "POST",
+        contentType:"application/json; charset=utf-8",
+        data: JSON.stringify(data),
+        dataType : "json",
+        //data : data,
+        success : function(callback){
+            //Where $(this) => context == FORM
+
+            //$(this).html("Received HTTP 200. Post should now be in database.");
+            //window.location.href = "{% url 'website:home'%}"
+            console.log("SUCCESSSSSSS");
+
+        },
+        error : function(xhr, thrownError){
+            console.log(xhr.status);
+            console.log(thrownError)
+            $(this).html("Error!");
+        }
+    });
+ 
+    //root user id: 6a431053-35bc-4c44-8250-06c65f577864
+   
+
+});
 
 </script>
 
