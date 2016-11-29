@@ -8,6 +8,12 @@ app.service('Stream', ['$q', '$http', 'djangoUrl', function($q, $http, djangoUrl
 
 		$http.get('/service/author/posts').then(function(response) {
 			posts = response.data ? response.data.posts : []
+			for(var i = 0; i < posts.length;i++) {
+				posts[i].author.host_encoded = encodeURIComponent(posts[i].author.host)
+				for (var j = 0; j < posts[i].comments.length; j++) {
+					posts[i].comments[j].host_encoded = encodeURIComponent(posts[i].comments[j].author.host);
+				}
+			}
 			deferred.resolve(posts);
 		}, function(response) {
 			deferred.reject(response.status);
