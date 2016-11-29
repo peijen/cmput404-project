@@ -69,6 +69,9 @@ def create_post(post):
                                    content=post['content'],
                                    categories=post['categories'],
                                    visibility=post['visibility'])
+    new_post.source = "http://cmput404t02.herokuapp.com/service/posts/%s" % (new_post.id)
+    new_post.origin = "http://cmput404t02.herokuapp.com/service/posts/%s" % (new_post.id)
+    new_post.save()
     return new_post
 
 def create_json_response_with_location(data, id, path):
