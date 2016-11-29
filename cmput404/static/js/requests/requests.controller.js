@@ -11,7 +11,7 @@ app.controller("requestCtrl", ['$scope', 'Author', function($scope, Author) {
         Author.addFriend(request.author);
         for (var i = 0; i < $scope.friend_requests.length; i++) {
             if ($scope.friend_requests[i].id == request.id) {
-                $scope.friend_requests[i].splice(i, 1);
+                $scope.friend_requests.splice(i, 1);
                 break;
             }
         }
