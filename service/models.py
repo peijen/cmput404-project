@@ -33,7 +33,7 @@ class Author(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4)
     host = models.CharField(max_length=500, null=True, blank=True, default='https://cmput404t02.herokuapp.com/service/')
     displayName = models.CharField(max_length=50, null=True, blank=True, default='')
-    url = models.CharField(max_length=500, null=True, blank=True)
+    url = models.CharField(max_length=500, null=True, blank=True )
     github = models.CharField(max_length=500, null=True, blank=True)
     email = models.EmailField(max_length=254, default="" , null=True, blank=True)
     firstName = models.CharField(max_length=30, default="" , null=True, blank=True)
@@ -47,6 +47,10 @@ class Author(models.Model):
 def create_author(sender, instance, created, **kwargs):
     if created:
         Author.objects.create(user=instance)
+        instance.author.url = "http://cmput404t02.herokuapp.com/service/author/%s" % (instance.author.id)
+        user = instance.author.user
+        instance.author.displayName = user.username
+        instance.author.save()
 
 @receiver(post_save, sender=User)
 def save_user_profile(sender, instance, **kwargs):
