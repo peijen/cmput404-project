@@ -7,6 +7,6 @@ app.controller("requestCtrl", ['$scope', 'Author', function($scope, Author) {
         $scope.friend_requests = res.data;
     }, function(res) {
 
-    })
+    });
 
 }]);

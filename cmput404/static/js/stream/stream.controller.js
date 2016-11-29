@@ -16,7 +16,6 @@ app.controller("streamCtrl", ['$scope', '$http', 'Stream', 'Author', function($s
 
 		Stream.commentOnPost(post.id, comment_text).then(function(comment) {
 			comment.author = Author.getCurrentUser().author;
-			console.log(comment.author);
 			if (post.comments) {
 				post.comments.push(comment);
 			} else {

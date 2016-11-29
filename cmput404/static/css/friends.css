@@ -1,34 +1,41 @@
-
 #header {
 	text-align: center;
 }
-
-#f_list{
-        padding-top: 5%;
- 	text-align: center;
-        font-size:130%;
-	
-	display: block;
-}
-
-#one_friend{
-	padding-top:2%; 
-	font: 200 20px/1.5 Helvetica, Verdana, sans-serif;
-	border-bottom: 1px solid #ccc;
-	border-top: 1px solid #ccc;
-
-}
-
 
 #jumbobody {
 	margin: 0 20% 0 20%;
 }
 
-#display{
+.friend-container {
+	display: flex;
+	margin-left: auto;
+	margin-right: auto;
+	margin-bottom: 1em;
+	width:50%;
+}
 
-        font-size:130%;
-        padding-top:10%;
-        padding-left: 20%
-	
+.displayname-text {
+	font-weight: bold;
+	font-size: 40px;
+}
 
+.left-friend-div {
+	width:80%;
+}
+
+.right-friend-div {
+	width:20%;
+	margin-top: auto;
+	margin-bottom: auto;
+}
+
+.right-friend-div > .glyphicon-remove {
+	font-size: 40px;
+	color: #f08c8c;
+}
+
+.right-friend-div > .glyphicon-remove:hover {
+	color: #c87474;
+	text-decoration: none;
+	cursor: pointer;
 }

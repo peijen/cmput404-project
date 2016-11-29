@@ -15,5 +15,6 @@ urlpatterns = [
     url(r'^make_post/$', views.make_post, name ='make_post'),
     url(r'^profile/$', views.update_profile, name='update_profile'),
     url(r'^requests/$', views.requests, name='requests'),
+    url(r'^friends/$', views.friends, name='friends'),
     url(r'^author/(?P<id>[^/]+)/?$', views.view_profile, name='view_profile'),
 ]

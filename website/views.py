@@ -85,3 +85,10 @@ def view_profile(request, id):
 def requests(request):
 	if (request.method == 'GET'):
 		return render(request, 'requests.html')
+	return HttpResponse(status=405)
+
+@login_required(login_url="login/")
+def friends(request):
+	if (request.method == 'GET'):
+		return render(request, 'friends.html')
+	return HttpResponse(status=405)

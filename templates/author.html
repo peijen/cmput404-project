@@ -16,7 +16,9 @@
         <span class="info"> URL: </span> <span id="author_url" class="info_value">{{ author.url }}&nbsp;</span>
         <span class="info"> Github: </span> <span class="info_value">{{ author.github }}&nbsp;</span>
         <span class="info"> Bio: </span> <span class="info_value">{{ author.bio }}&nbsp;</span>
-        <button class="btn btn-primary" ng-click="addFriend('test')" style="margin: 15px 0% 1% 10%;border-radius: 0;">Add Friend</button>
+        {% if request_user.author.id !=  author.id %}
+        <button class="btn btn-primary" ng-click="addFriend()" style="margin: 15px 0% 1% 10%;border-radius: 0;" ng-if="isntInFriends()">Add Friend</button>
+        {% endif %}
     </div>
 </div>
 {% endblock %}

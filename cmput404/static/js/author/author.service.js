@@ -2,8 +2,9 @@ var app = angular.module('cmput404client');
 app.service('Author', ['$q', '$http', '$location', 'djangoUrl', function($q, $http, $location, djangoUrl) {
 
     var _this = this; // Save the context
+    var deferred_friends = $q.defer();
     _this.user = {};
-    _this.friends = [];
+    _this.friends = deferred_friends.promise;
 
     this.getUserAndAuthorProfile = function() {
         var deferred = $q.defer();
@@ -66,8 +67,28 @@ app.service('Author', ['$q', '$http', '$location', 'djangoUrl', function($q, $ht
         return $http.get(url);
     }
 
+    this.getFriends = function() {
+        var deferred = $q.defer();
+        var url = djangoUrl.reverse('service:friend_handler')
+        $http.get(url).then(function(res) {
+            deferred_friends.resolve(res.data);
+            deferred.resolve(res.data);
+        }, deferred.reject)
+        return deferred.promise;
+    }
+
+    this.getCurrentFriends = function() {
+        return _this.friends;
+    }
+
+    this.removeFriend = function(friend_id) {
+        var url = djangoUrl.reverse('service:friend_handler_specific', {id: friend_id})
+        return $http.delete(url);
+    }
+
     var init = function() {
         _this.getMe();
+        _this.getFriends();
     }
 
     init();

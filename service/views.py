@@ -425,10 +425,9 @@ def friend_handler(request):
     if (request.method == 'GET'):
         author = Author.objects.get(user_id=request.user.id)
         friends = author.friends.all()
-        #serializer = AuthorSerializer(friends, many=True)
-        #json_data = JSONRenderer().render(serializer.data)
-        #return HttpResponse(json_data, content_type='application/json')
-        return render(request, 'friends.html', {"friend":friends})
+        serializer = AuthorSerializer(friends, many=True)
+        json_data = JSONRenderer().render(serializer.data)
+        return HttpResponse(json_data, content_type='application/json')
 
     return HttpResponse(status=405)
 

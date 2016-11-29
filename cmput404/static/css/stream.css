@@ -124,14 +124,15 @@ a.hover, a.focus {
 
 .remove-post-icon {
     margin: 0;
-    color: red !important;
     padding-right: 15px;
 }
 
 .clickable {
     cursor: pointer;
+
 }
 
 .clickable:hover {
-    color: #ba0000;
+    color: #179c82;
+    text-decoration: none;
 }
