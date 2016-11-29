@@ -375,7 +375,7 @@ def author_posts_handler(request):
 
         #Deal with friends and stuff here later.
         posts = Post.objects.filter(
-            Q(author = author.id) | Q(visibility = 'PUBLIC') | Q(author__in = my_friends)
+            Q(author = author.id) | Q(visibility = 'PUBLIC')  | Q(author__in = my_friends) & ~Q(visibility = 'PRIVATE')
             ).order_by('-published')
 
         size = int(request.GET.get('size', 25))
