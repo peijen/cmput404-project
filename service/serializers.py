@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from .models import Author, Comment, Post, FriendRequest, VISIBILITY_CHOICES
 from django.contrib.auth.models import User
 
+
 class AuthorSerializer(serializers.ModelSerializer):
 
     class Meta:

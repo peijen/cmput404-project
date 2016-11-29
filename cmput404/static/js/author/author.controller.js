@@ -1,6 +1,8 @@
 var app = angular.module("cmput404client")
 app.controller("authorCtrl", ['$scope', 'Author', function($scope, Author) {
 
+
+
     $scope.addFriend = function() {
         var re = new RegExp(String.fromCharCode(160), "g"); //remove any &nbsp
         var author = {

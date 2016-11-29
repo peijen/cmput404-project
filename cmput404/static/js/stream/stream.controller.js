@@ -2,6 +2,7 @@ var app = angular.module("cmput404client")
 app.controller("streamCtrl", ['$scope', '$http', 'Stream', 'Author', function($scope, $http, Stream, Author) {
 
 	$scope.posts = [];
+	$scope.getCurrentUser = Author.getCurrentUser;
 
 	Stream.getPosts().then(function(posts) {
 		$scope.posts = posts;

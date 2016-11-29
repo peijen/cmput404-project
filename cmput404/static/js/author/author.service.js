@@ -1,10 +1,9 @@
 var app = angular.module('cmput404client');
 app.service('Author', ['$q', '$http', '$location', 'djangoUrl', function($q, $http, $location, djangoUrl) {
 
-
-
     var _this = this; // Save the context
     _this.user = {};
+    _this.friends = [];
 
     this.getUserAndAuthorProfile = function() {
         var deferred = $q.defer();
