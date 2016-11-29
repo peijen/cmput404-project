@@ -1,0 +1,34 @@
+
+#header {
+	text-align: center;
+}
+
+#f_list{
+        padding-top: 5%;
+ 	text-align: center;
+        font-size:130%;
+	
+	display: block;
+}
+
+#one_friend{
+	padding-top:2%; 
+	font: 200 20px/1.5 Helvetica, Verdana, sans-serif;
+	border-bottom: 1px solid #ccc;
+	border-top: 1px solid #ccc;
+
+}
+
+
+#jumbobody {
+	margin: 0 20% 0 20%;
+}
+
+#display{
+
+        font-size:130%;
+        padding-top:10%;
+        padding-left: 20%
+	
+
+}

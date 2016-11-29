@@ -5,7 +5,7 @@
 
  <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
  <script src="/static/js/js.cookie.js"></script>
- <link rel="stylesheet" href="/static/css/author.css"/>
+ <link rel="stylesheet" href="/static/css/friends.css"/>
 <div class="container">
 
 
@@ -15,14 +15,16 @@
 <div class="entry">
 </div>
 <div class = "jumbotron" id="jumbobody">
-<h1>Friend List</h1>
-<ul>
+<h1 id ="header">Friend List</h1>
+
+<span id="display">display Name:</span>
+<div id="f_list">
 {% for i in friend %}
-<li>
+<div id="one_friend">
 	{{ i }}
-</li>
+</div>
 {% endfor %}
-</ul>
+</div>
 
 </div>
 {% endblock %}
