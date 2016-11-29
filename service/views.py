@@ -410,10 +410,9 @@ def get_service_link():
 def author_handler(request, id):
     #Return the foreign author's profile
     if (request.method == 'POST'):
-        return HttpResponse("")
+        return HttpResponse(status=405)
 
     elif (request.method == 'GET'):
-
         author = Author.objects.get(id=id)
         author.friends = author.friends.all()
         author.url = author.host + 'author/' + str(author.id)
