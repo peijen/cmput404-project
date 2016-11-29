@@ -5,7 +5,6 @@ app.controller("friendsCtrl", ['$scope', 'Author', function($scope, Author) {
 
     Author.getCurrentFriends().then(function(friends) {
         $scope.friends = friends;
-        console.log(friends);
     });
 
     $scope.removeFriend = function(friend_id) {
