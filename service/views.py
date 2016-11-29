@@ -43,10 +43,8 @@ def catch_em_all(request):
 
         if node.useauth:
             stuff = requests.get(node.url + "posts/", auth=HTTPBasicAuth(node.username, node.password))
-            print stuff.content
         else:
             stuff = requests.get(node.url + "posts/")
-            print stuff.content
 
         content = json.loads(stuff.content)
 
@@ -249,15 +247,14 @@ def author_posts_handler_linked(request):
             author = Author.objects.get(user_id=user.id)
         except:
             return HttpResponse(status=404)
-
-        host = "http://127.0.0.1:8000/"
+        host = "http://cmput404t02.herokuapp.com/"
 
         service_link = get_service_link()
-        my_friends = user.friends.all()
+        my_friends = author.friends.all()
 
         #Deal with friends and stuff here later.
         posts = Post.objects.filter(
-            Q(author = author.id) | Q(visibility = 'PUBLIC') | Q(author__in = my_friends)
+            Q(author = author.id) | Q(visibility = 'PUBLIC') | Q(author__in = my_friends) & ~Q(visibility = 'PRIVATE')
             ).order_by('-published')
 
         #count = posts.count()
