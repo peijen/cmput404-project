@@ -38,9 +38,9 @@ def catch_em_all(request):
     nodes = Nodes.objects.all()
 
     posts = []
-
+    print nodes
     for node in nodes:
-
+        print "hereere"
         if node.useauth:
             stuff = requests.get(node.url + "posts/", auth=HTTPBasicAuth(node.username, node.password))
             print stuff.content
@@ -253,7 +253,7 @@ def author_posts_handler_linked(request):
         host = "http://127.0.0.1:8000/"
 
         service_link = get_service_link()
-        my_friends = user.friends.all()
+        my_friends = author.friends.all()
 
         #Deal with friends and stuff here later.
         posts = Post.objects.filter(
