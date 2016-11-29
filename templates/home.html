@@ -24,7 +24,7 @@
                 </div>
                 <h3>{$ post.description $}</h3>
                 <p class="post-content">{$ post.content $}</p>
-                <p class="post-footer faded-text">Posted by <a ng-href="./author/{$post.author.id$}">{$ post.author.displayName $}</a> {$ post.published | closeDateFilter $}</p>
+                <p class="post-footer faded-text">Posted by <a ng-href="./author/{$post.author.id$}">{$ post.author.displayName $}</a> {$ post.published | closeDateFilter $} @ {$ post.author.host $}</p>
             </div>
             <div class="comment-section">
                 <h1 class="no-margin-top-header">Comments</h1>

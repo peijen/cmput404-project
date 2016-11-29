@@ -26,4 +26,21 @@ app.controller("streamCtrl", ['$scope', '$http', 'Stream', 'Author', function($s
 		});
 	}
 
+	$scope.deletePost = function(post_id) {
+		Stream.deletePost(post_id).then(function(res) {
+			var index = -1;
+			for(var i = 0; i < $scope.posts.length; i++) {
+				if ($scope.posts[i].id == post_id) {
+					index = i;
+					break;
+				}
+			}
+			if (index > -1) {
+    			$scope.posts.splice(index, 1);
+			}
+		}, function(res) {
+
+		})
+	}
+
 }]);

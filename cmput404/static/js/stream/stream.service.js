@@ -19,7 +19,7 @@ app.service('Stream', ['$q', '$http', 'djangoUrl', function($q, $http, djangoUrl
 	this.getPost = function(post_id) {
 		var deferred = $q.defer();
 
-		$http.get('/service/author/posts' + post_id).then(function(reponse) {
+		$http.get('/service/author/posts/' + post_id).then(function(reponse) {
 			deferred.resolve(response.data);
 		}, function(response) {
 			deferred.reject(response.data);
@@ -44,6 +44,11 @@ app.service('Stream', ['$q', '$http', 'djangoUrl', function($q, $http, djangoUrl
 		});
 
 		return deferred.promise;
+	}
+
+	this.deletePost = function(post_id) {
+		var url = djangoUrl.reverse('service:post_handler_specific', { id: post_id });
+		return $http.delete(url);
 	}
 
 }]);

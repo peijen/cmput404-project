@@ -7,7 +7,7 @@ from rest_framework.pagination import PageNumberPagination
 from django.contrib.sites.models import Site
 
 from .models import Author, Comment, Post, FriendRequest, Nodes
-from .serializers import PostSerializer, AuthorSerializer, UserSerializer, PostPagination, CommentSerializer
+from .serializers import PostSerializer, AuthorSerializer, UserSerializer, PostPagination, CommentSerializer, FriendRequestSerializer
 from .authenticate import check_authenticate
 
 from rest_framework.decorators import api_view
@@ -17,6 +17,7 @@ import json
 import requests
 from requests.auth import HTTPBasicAuth
 import datetime
+import uuid
 from operator import itemgetter
 import dateutil.parser
 
@@ -162,7 +163,7 @@ def posts_handler_generic(request):
             author = Author.objects.get(id=post['author_id'])
             post['comments'] = comments
             post['author'] = author
-            post['count'] = comments.count()		
+            post['count'] = comments.count()
             post['size'] = size
             post['next'] = post.origin + '/posts/' + str(post.id) + '/comments'
 
@@ -363,9 +364,9 @@ def author_posts_handler(request):
             author = Author.objects.get(user_id=user.id)
         except:
             return HttpResponse(status=404)
-            
+
         my_friends = author.friends.all()
-        
+
         print my_friends
 
         #Deal with friends and stuff here later.
@@ -383,7 +384,7 @@ def author_posts_handler(request):
             author = Author.objects.get(id=post['author_id'])
             post['comments'] = comments
             post['author'] = author
-            post['count'] = comments.count()		
+            post['count'] = comments.count()
             post['size'] = size
             post['next'] = post.origin + '/posts/' + str(post.id) + '/comments'
 
@@ -414,6 +415,7 @@ def author_handler(request, id):
 
         author = Author.objects.get(id=id)
         author.friends = author.friends.all()
+        author.url = author.host + 'author/' + str(author.id)
         serializer = AuthorSerializer(author)
         json_data = JSONRenderer().render(serializer.data)
 
@@ -526,89 +528,41 @@ def friend_query_handler(request, author1_id, author2_id):
 # }
 
 # return friend request if exists, otherwise false
-def friend_request_exists(requester_id, requestee_id):
+def friend_request_exists(author_id, friend_id):
     try:
-        fr = FriendRequests.objects.get(requester_id=requester_id, requestee_id=requestee_id)
+        fr = FriendRequest.objects.get(requester_id=author_id, requestee_id=friend_id)
         return fr
 
     except:
         return False
 
-def friendrequest_handler_ad(request):
-	
-	if (request.method == 'POST'):
-		print "sup doods"
-		
-		stuff = json.loads(request.body)
-		print stuff
-		
-		if stuff['action'] == "accept":
-			
-			print "accept the stuff"
-			
-			request = FriendRequest.objects.get(id=stuff['id'])
-			
-			requester = request.requester
-			requestee = request.requestee
-			
-			requester.friends.add(requestee)
-			requestee.friends.add(requester)
-			
-			request.delete()
-			
-		elif stuff['action'] == "decline":
-			
-			print stuff['id']
-			
-			try:
-				request = FriendRequest.objects.get(id=stuff['id'])
-				request.delete()
-			except:
-				return HttpResponse(status=404)
-			
-		else:
-			return HttpResponse(status=400)
-			
-					
-		return HttpResponse(status=200)
-		
-		
-	return HttpResponse(status=400)
-
 def friendrequest_handler(request):
-    
+
     if (request.method == 'POST'):
-	print "GOT HERE SO REQUEST WORKS"
         # TODO: validation, are they already friends?
         body = json.loads(request.body)
 
         try:
-            me = Author.objects.get(id=body['user_id'])
-        except:
-            return HttpResponse(status=401)
+            me = Author.objects.get(user_id=request.user.id)
 
+        except:
+            if (me.id != requester_id):
+                return HttpResponse(status=401)
 
         try:
-            me.friends.get(id=body['friend_id'])
-            return HttpResponse(status=401)
+            me.friends.get(id=body['friend']['id'])
+            return HttpResponse(status=409)
         except:
             pass
 
-        found = False
-        try:
-            request = FriendRequest.objects.get(requester_id=body['user_id'], requestee_id=body['friend_id'])
-            found = True
-        except:
-            found = False
+        fr = friend_request_exists(body['author']["id"], body['friend']['id'])
 
-        if found:
-            return HttpResponse(status=401)
+        if (fr):
+            return HttpResponse(status=409)
 
-        print found
-        print body
         # try to get an existing reverse friend request (where the requester is the requestee)
         try:
-            bidirectional = FriendRequest.objects.get(requestee_id=body['user_id'], requester_id=body['friend_id'])
+            bidirectional = FriendRequest.objects.get(requestee_id=body['author']['id'], requester_id=body['friend']['id'])
 
             # exists a friend request from the other user, even if it was previously rejected
             # make users friends
@@ -616,7 +570,7 @@ def friendrequest_handler(request):
             friend1 = Author.objects.get(id=bidirectional.requester.id)
             friend2 = Author.objects.get(id=bidirectional.requestee.id)
 
- 
+
             if friend1.id != friend2.id:
                 friend1.friends.add(friend2)
                 friend2.friends.add(friend1)
@@ -627,37 +581,22 @@ def friendrequest_handler(request):
 
 
         except:
-            # only create the friend request if it doesn't already exist and wasn't rejected
-            fr = friend_request_exists(body["user_id"], body['friend_id'])
-
-            if not fr:
-                fr = FriendRequest.objects.create(requester_id=body['user_id'], requestee_id=body['friend_id'])
-                data = model_to_dict(fr)
-                return create_json_response_with_location(data, fr.id, request.path)
-
-            else:
-                # friend request exists, either pending or rejected
-                return HttpResponse(status=409)
+            fr = FriendRequest.objects.create(requester_id=body['author']['id'], requestee_id=body['friend']['id'])
+            data = model_to_dict(fr)
+            return create_json_response_with_location(data, fr.id, request.path)
 
     # return users list of pending requests
     elif (request.method == 'GET'):
 
         author = Author.objects.get(user_id=request.user.id)
         friend_requests = FriendRequest.objects.filter((Q(requestee_id=author.id) & Q(accepted__isnull=True)))
-        
-        returnl = []
-        for item in friend_requests:
-            dicti = {}
-            dicti['username'] = Author.objects.get(id=item.requester.id).displayName
-            dicti['requester_id'] = item.requester.id
-            dicti['request_id'] = item.id
-            returnl.append(dicti)
-				
+        for friend_request in friend_requests:
+            setattr(friend_request, 'author', Author.objects.get(id=friend_request.requester_id))
+            setattr(friend_request, 'friend', Author.objects.get(id=friend_request.requestee_id))
 
-
-
-        return render(request, "friendrequest.html", {"pendingFriend":returnl})	
-        #return HttpResponse(serialized, content_type="application/json")
+        serializer = FriendRequestSerializer(friend_requests, many=True)
+        json_data = JSONRenderer().render(serializer.data)
+        return HttpResponse(json_data, content_type='application/json')
 
     else:
         return HttpResponse(status=405)

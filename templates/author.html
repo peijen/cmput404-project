@@ -1,61 +1,22 @@
+ {% extends 'base.html' %} {% load staticfiles %} {% block content %}
+<script src="https://code.jquery.com/jquery-1.9.1.js"></script>
+<script src="/static/js/js.cookie.js"></script>
+<link rel="stylesheet" href="/static/css/author.css" />
+<div class="entry" ng-controller='authorCtrl'>
 
-{% extends 'base.html' %}
-{% load staticfiles %}
-{% block content %}
- <script src="https://code.jquery.com/jquery-1.9.1.js"></script>
- <script src="/static/js/js.cookie.js"></script>
- <link rel="stylesheet" href="/static/css/author.css"/>
-<div class="container">
-<div class="row">
-</div>
-</div>
-<div class="entry">
-  <img src="/static/images/No_image_available.svg" alt="img" id="profile_picture"> <!--hardcoded image for now-->
-</div>
-{{author.id}}  author id
-<br>
-User: {{user}}
-<br>
-profile_user: {{profile_user}}
-<br>
-user id: {{user_id}}
-<br>
-
-<br>
-<h2 id="display_name"> {{author.displayName }} &nbsp; </h2>
-
-<!-- checking if you are adding yourself as friend   -->
-{% if not author.id == user_id %}<!-- if it's someone else, the button will show up  -->
-{% if errors %}<p>{{ errors|join:", " }}</p>{% endif %}
-
-<form action="{% url 'service:friendrequest_handler' %}" method="post" id="friend_form">
-{% csrf_token %}
-<input type="submit" id="friendButton" onclick="function(e)" value="Send Friend Request" />
-</form>
-
-<script type="text/javascript">
-var request_user = "{{request_user| escapejs}}";
-var user_id = "{{user_id| escapejs}}";
-var friend = "{{profile_user| escapejs}}";
-var profile_id = "{{author.id| escapejs}}";
-</script>
-
-<script src="{% static 'js/friendrequest.js' %}">
-</script>
-
-
-
-{% endif %}
-
-
-
-<div class = "jumbotron" id="jumbobody">
-<span class="info"> First Name: </span> <span class="info_value"> {{ author.firstName }} &nbsp; </span>
-<span class="info"> Last Name: </span> <span class="info_value"> {{ author.lastName }} &nbsp; </span>
-<span class="info"> Email: </span> <span class="info_value"> {{ author.email }} &nbsp; </span>
-<span class="info"> Host: </span> <span class="info_value"> {{ author.host }} &nbsp; </span>
-<span class="info"> URL: </span> <span class="info_value"> {{ author.url }} &nbsp; </span>
-<span class="info"> Github: </span> <span class="info_value"> {{ author.github }} &nbsp; </span>
-<span class="info"> Bio: </span> <span class="info_value"> {{ author.bio }} &nbsp; </span>
+    <!--hardcoded image for now-->
+    <div class="jumbotron" id="jumbobody">
+        <h2 id="display_name">{{author.displayName}}&nbsp;</h2>
+        <img src="/static/images/No_image_available.svg" alt="img" id="profile_picture">
+        <span id="author_id" style="display:none" >{{author.id}}</span>
+        <span class="info"> First Name: </span> <span class="info_value">{{ author.firstName }}&nbsp;</span>
+        <span class="info"> Last Name: </span> <span class="info_value">{{ author.lastName }}&nbsp;</span>
+        <span class="info"> Email: </span> <span class="info_value">{{ author.email }}&nbsp;</span>
+        <span class="info"> Host: </span> <span id="author_host" class="info_value">{{ author.host }}&nbsp;</span>
+        <span class="info"> URL: </span> <span id="author_url" class="info_value">{{ author.url }}&nbsp;</span>
+        <span class="info"> Github: </span> <span class="info_value">{{ author.github }}&nbsp;</span>
+        <span class="info"> Bio: </span> <span class="info_value">{{ author.bio }}&nbsp;</span>
+        <button class="btn btn-primary" ng-click="addFriend('test')" style="margin: 15px 0% 1% 10%;border-radius: 0;">Add Friend</button>
+    </div>
 </div>
 {% endblock %}

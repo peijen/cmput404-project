@@ -78,5 +78,10 @@ def view_profile(request, id):
         display = Author.objects.get(id=id)
         user = request.user
         request_id = Author.objects.get(user=user).id
+        author.url = author.host + 'author/' + str(author.id)
         return render(request, 'author.html', {'author':author, 'user_id':request_id,'request_user':user, 'profile_user':display })
 
+@login_required(login_url="login/")
+def requests(request):
+	if (request.method == 'GET'):
+		return render(request, 'requests.html')

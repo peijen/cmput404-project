@@ -2,19 +2,23 @@ h1 {
 	text-align: center;
 }
 
-#Btn {
-	float: right;
-	display: table;
-	margin: 0 20% 1% 0;
-}
-
-#disName {
-	float: left;
-	display: table;
-	margin: 0 0 1% 10%;
-	font-size: 150%;
-}
-
 #jumbobody {
 	margin: 0 20% 0 20%;
+}
+
+.request {
+	margin: 1em;
+	display: flex;
+	width: 32em;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.request-text {
+	width:80%;
+}
+
+.accept-button {
+	width:20%;
+	text-align: right;
 }

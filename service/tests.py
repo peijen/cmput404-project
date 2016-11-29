@@ -165,6 +165,13 @@ class TestPosts(TestCase):
         response = c.post('/service/friendrequest/', json.dumps({"query":"friendrequest", "friend": {"id": str(author2.id)}, "author": {"id": str(self.author.id)}}), content_type="application/json")
         should_exist = FriendRequest.objects.get(pk=response['location'].replace('/service/friendrequest/', ''))
 
+    def test_cant_make_same_friend_request_twice(self):
+        user2 = User.objects.create_user(username='testuser2', email='bebebebe@test.com', password='user2')
+        author2 = Author.objects.get(user_id=user2.id)
+        response = c.post('/service/friendrequest/', json.dumps({"query":"friendrequest", "friend": {"id": str(author2.id)}, "author": {"id": str(self.author.id)}}), content_type="application/json")
+        response2 = c.post('/service/friendrequest/', json.dumps({"query":"friendrequest", "friend": {"id": str(author2.id)}, "author": {"id": str(self.author.id)}}), content_type="application/json")
+        self.assertEqual(response2.status_code, 409)
+
     def test_can_accept_friend_request(self):
         user2 = User.objects.create_user(username='user2', email='test@test.com', password='test')
         author2 = Author.objects.get(user_id=user2.id)
