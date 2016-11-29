@@ -1,7 +1,7 @@
 'use strict';
 
 // Declare app level module which depends on views, and components
-angular.module('cmput404client', ['djng.urls']).config(function($interpolateProvider, $httpProvider) {
+angular.module('cmput404client', ['djng.urls', 'ngSanitize']).config(function($interpolateProvider, $httpProvider) {
 	// need these lines so that angular doesn't confuse its {{ var }} with djangos
 	$interpolateProvider.startSymbol('{$');
 	$interpolateProvider.endSymbol('$}');

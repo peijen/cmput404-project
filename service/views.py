@@ -3,6 +3,7 @@ from django.http import HttpResponse, JsonResponse
 from django.db.models import Q
 from django.forms.models import model_to_dict
 from django.core import serializers
+from django.utils.safestring import mark_safe
 from rest_framework.pagination import PageNumberPagination
 from django.contrib.sites.models import Site
 
@@ -303,7 +304,7 @@ def author_posts_handler_linked(request):
             workingdict['origin'] = item.origin
             workingdict['description'] = item.description
             workingdict['contentType'] = item.contentType
-            workingdict['content'] = item.content
+            workingdict['content'] = mark_safe(item.content)
             workingdict['id'] = item.id
             workingdict['published'] = item.published.strftime("%Y-%m-%dT%H:%M:%S+00:00")
             workingdict['categories'] = item.categories.split(",")

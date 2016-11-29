@@ -1,10 +1,17 @@
 var app = angular.module("cmput404client")
-app.controller("streamCtrl", ['$scope', '$http', 'Stream', 'Author', function($scope, $http, Stream, Author) {
+app.controller("streamCtrl", ['$scope', '$http', 'Stream', 'Author', '$sce', function($scope, $http, Stream, Author, $sce) {
 
 	$scope.posts = [];
 	$scope.getCurrentUser = Author.getCurrentUser;
 
 	Stream.getPosts().then(function(posts) {
+		for (var i = 0; i < posts.length; i++) {
+			if (posts[i].contentType = 'text/x-markdown') {
+				var converter = new showdown.Converter()
+				posts[i].html = converter.makeHtml(posts[i].content);
+			}
+
+		}
 		$scope.posts = posts;
 		return;
 	}, function(status) {
