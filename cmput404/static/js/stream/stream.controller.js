@@ -10,6 +10,9 @@ app.controller("streamCtrl", ['$scope', '$http', 'Stream', 'Author', '$sce', fun
 				var converter = new showdown.Converter()
 				posts[i].html = converter.makeHtml(posts[i].content);
 			}
+			else {
+				posts[i].html = posts[i].content;
+			}
 
 		}
 		$scope.posts = posts;
