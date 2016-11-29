@@ -22,7 +22,7 @@
                     <h1 class="post-title no-margin-top-header">{$ post.title $}</h1>
                     <h1 class="post-date no-margin-top-header" ng-if="post.author.id != getCurrentUser().author.id"> {$ post.published | date: 'MMM d' $}</h1>
                     <h1 class="post-date remove-post-icon" ng-if="post.author.id == getCurrentUser().author.id">
-                        <div class="clickable glyphicon glyphicon-ban-circle" ng-click="deletePost(post.id)">
+                        <div class="clickable glyphicon glyphicon-ban-circle" ng-click="deletePost(post.id)" title="Delete this post.">
                     </h1>
                 </div>
                 <h3>{$ post.description $}</h3>
